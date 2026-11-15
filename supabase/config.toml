@@ -432,3 +432,16 @@ import_map = "./functions/deno.json"
 [functions.notify]
 verify_jwt = false
 import_map = "./functions/deno.json"
+
+[functions.kyc-pan-verify]
+import_map = "./functions/deno.json"
+
+[functions.kyc-bank-verify]
+import_map = "./functions/deno.json"
+
+[functions.kyc-digilocker-start]
+import_map = "./functions/deno.json"
+
+[functions.kyc-digilocker-callback]
+verify_jwt = false
+import_map = "./functions/deno.json"

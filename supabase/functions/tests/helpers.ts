@@ -5,6 +5,7 @@ import { serviceClientFrom, type Deps } from '../_shared/deps.ts';
 import { withHandler, type Handler } from '../_shared/http.ts';
 import { FakeSms, FakeWhatsApp } from '../_shared/providers/msg91/fake.ts';
 import { FakePush } from '../_shared/providers/push/fake.ts';
+import { FakeVerification } from '../_shared/providers/verification/fake.ts';
 
 const env = (k: string) => process.env[k];
 
@@ -15,7 +16,7 @@ export function serviceClient(): SupabaseClient {
 /** Deps wired to the local database with fake providers. `envOverrides` win over process.env. */
 export function testDeps(envOverrides: Record<string, string> = {}, over: Partial<Deps> = {}): Deps {
   const e = (k: string) => envOverrides[k] ?? process.env[k];
-  return { db: serviceClient(), now: () => new Date(), env: e, sms: new FakeSms(), whatsapp: new FakeWhatsApp(), push: new FakePush(), ...over };
+  return { db: serviceClient(), now: () => new Date(), env: e, sms: new FakeSms(), whatsapp: new FakeWhatsApp(), push: new FakePush(), verification: new FakeVerification(), ...over };
 }
 
 function anonClient(): SupabaseClient {
@@ -85,4 +86,21 @@ export async function invoke(
     }),
   );
   return { status: res.status, body: await res.json() };
+}
+
+/** A phone user who has started a practitioner application (draft). */
+export async function createApplicant(phone?: string): Promise<TestUser & { phone: string; practitionerId: string }> {
+  const u = await createUser(phone);
+  const { data, error } = await u.client
+    .from('practitioners')
+    .insert({ user_id: u.userId, display_name: 'Rahul Sharma' })
+    .select('id')
+    .single();
+  if (error) throw error;
+  return { ...u, practitionerId: data.id };
+}
+
+export async function setPractitionerStatus(practitionerId: string, status: string) {
+  const { error } = await serviceClient().from('practitioners').update({ status }).eq('id', practitionerId);
+  if (error) throw error;
 }
