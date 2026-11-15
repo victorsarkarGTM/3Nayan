@@ -1,5 +1,5 @@
 begin;
-select plan(10);
+select plan(11);
 
 select tests.create_user('919999900201') as a \gset
 select tests.create_user('919999900202') as b \gset
@@ -12,6 +12,8 @@ select lives_ok(format('insert into public.practitioners (user_id, display_name)
   'owner can insert own draft');
 select throws_ok(format('insert into public.practitioners (user_id, display_name) values (%L, %L)', :'b', 'Fake'),
   '42501', null, 'owner cannot insert for another user_id');
+select throws_ok(format('insert into public.practitioners (user_id, display_name, status) values (%L, %L, %L)', :'b', 'B', 'approved'),
+  '42501', null, 'client cannot insert a non-draft practitioner');
 select id as p from public.practitioners where user_id = :'a' \gset
 
 select throws_ok(format('update public.practitioners set status = %L where id = %L', 'approved', :'p'),

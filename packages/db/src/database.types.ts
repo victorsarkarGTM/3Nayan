@@ -131,6 +131,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"practitioner_status_history": {
+                  Row: {
+                    "action": string,"actor_id": string | null,"actor_kind": string,"created_at": string,"from_status": Database["public"]['Enums']["practitioner_status"],"id": string,"practitioner_id": string,"reason": string | null,"to_status": Database["public"]['Enums']["practitioner_status"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"actor_id"?: string | null,"actor_kind": string,"created_at"?: string,"from_status": Database["public"]['Enums']["practitioner_status"],"id"?: string,"practitioner_id": string,"reason"?: string | null,"to_status": Database["public"]['Enums']["practitioner_status"]
+                  }
+                  Update: {
+                    "action"?: string,"actor_id"?: string | null,"actor_kind"?: string,"created_at"?: string,"from_status"?: Database["public"]['Enums']["practitioner_status"],"id"?: string,"practitioner_id"?: string,"reason"?: string | null,"to_status"?: Database["public"]['Enums']["practitioner_status"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "practitioner_status_history_practitioner_id_fkey"
+      columns: ["practitioner_id"]
+isOneToOne: false
+      referencedRelation: "practitioners"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"practitioners": {
                   Row: {
                     "address_full": string | null,"agreement_version": string | null,"approved_at": string | null,"assigned_reviewer_id": string | null,"bio": string | null,"city": string | null,"created_at": string,"credentials_text": string | null,"declaration_accepted": boolean,"display_name": string | null,"email": string | null,"gstin": string | null,"id": string,"languages": (string)[],"lat": number | null,"links": (string)[],"lng": number | null,"location": unknown,"offers_in_person": boolean,"offers_online": boolean,"photo_path": string | null,"pincode": string | null,"razorpay_account_id": string | null,"razorpay_account_status": string | null,"reapply_after": string | null,"residential_address": Json | null,"status": Database["public"]['Enums']["practitioner_status"],"submitted_at": string | null,"updated_at": string,"user_id": string,"video_bytes": number | null,"video_duration_seconds": number | null,"video_mime": string | null,"video_path": string | null,"years_experience": number | null
@@ -159,6 +179,26 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"review_notes": {
+                  Row: {
+                    "body": string,"created_at": string,"id": string,"practitioner_id": string,"staff_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body": string,"created_at"?: string,"id"?: string,"practitioner_id": string,"staff_id": string
+                  }
+                  Update: {
+                    "body"?: string,"created_at"?: string,"id"?: string,"practitioner_id"?: string,"staff_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "review_notes_practitioner_id_fkey"
+      columns: ["practitioner_id"]
+isOneToOne: false
+      referencedRelation: "practitioners"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"staff": {
                   Row: {
                     "active": boolean,"created_at": string,"email": string,"role": Database["public"]['Enums']["staff_role"],"updated_at": string,"user_id": string
@@ -173,13 +213,44 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"verification_checks": {
+                  Row: {
+                    "attempt_times": (string)[],"attempts": number,"bank_account_encrypted": string | null,"checked_at": string | null,"created_at": string,"id": string,"ifsc": string | null,"kind": string,"last_error": string | null,"masked_ref": string | null,"name_match_score": number | null,"practitioner_id": string,"provider_ref": string | null,"status": string,"updated_at": string,"verified_name": string | null,"year_of_birth": number | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "attempt_times"?: (string)[],"attempts"?: number,"bank_account_encrypted"?: string | null,"checked_at"?: string | null,"created_at"?: string,"id"?: string,"ifsc"?: string | null,"kind": string,"last_error"?: string | null,"masked_ref"?: string | null,"name_match_score"?: number | null,"practitioner_id": string,"provider_ref"?: string | null,"status"?: string,"updated_at"?: string,"verified_name"?: string | null,"year_of_birth"?: number | null
+                  }
+                  Update: {
+                    "attempt_times"?: (string)[],"attempts"?: number,"bank_account_encrypted"?: string | null,"checked_at"?: string | null,"created_at"?: string,"id"?: string,"ifsc"?: string | null,"kind"?: string,"last_error"?: string | null,"masked_ref"?: string | null,"name_match_score"?: number | null,"practitioner_id"?: string,"provider_ref"?: string | null,"status"?: string,"updated_at"?: string,"verified_name"?: string | null,"year_of_birth"?: number | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "verification_checks_practitioner_id_fkey"
+      columns: ["practitioner_id"]
+isOneToOne: false
+      referencedRelation: "practitioners"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {
-            [_ in never]: never
+            "my_verification_checks": {
+                  Row: {
+                    "attempt_times": (string)[],"attempts": number,"checked_at": string | null,"kind": string,"masked_ref": string | null,"name_match_score": number | null,"status": string,"verified_name": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    
+                  ]
+                }
           }
           Functions: {
-            "is_staff":
+            "apply_practitioner_transition":
+{ Args: { "p_action": string,"p_actor": string,"p_actor_kind": string,"p_from": Database["public"]['Enums']["practitioner_status"],"p_id": string,"p_patch"?: Json,"p_reason": string,"p_to": Database["public"]['Enums']["practitioner_status"] }; Returns: boolean
+                           },
+"is_staff":
 { Args: { "roles"?: (Database["public"]['Enums']["staff_role"])[] }; Returns: boolean
                            },
 "owns_editable_practitioner":
@@ -187,6 +258,12 @@ isOneToOne: false
                            },
 "owns_practitioner":
 { Args: { "p_id": string }; Returns: boolean
+                           },
+"reveal_bank_account":
+{ Args: { "p_check_id": string }; Returns: string
+                           },
+"store_bank_account":
+{ Args: { "p_account": string,"p_check_id": string,"p_ifsc": string }; Returns: undefined
                            },
 "write_audit":
 { Args: { "p_action": string,"p_actor_id": string,"p_actor_kind": string,"p_metadata": Json,"p_target_id": string,"p_target_table": string }; Returns: undefined
