@@ -16,3 +16,4 @@ apps/mobile/ios/
 apps/mobile/android/
 test-results/
 playwright-report/
+*.tsbuildinfo

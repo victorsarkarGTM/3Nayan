@@ -20,7 +20,8 @@
     "sync:shared": "node scripts/sync-shared.mjs",
     "functions:check": "bash scripts/check-functions.sh",
     "functions:dev": "pnpm --filter @3nayan/functions exec tsx dev-server.ts",
-    "stack:up": "pnpm db:start && node scripts/sync-shared.mjs && pnpm functions:dev"
+    "stack:up": "pnpm db:start && node scripts/sync-shared.mjs && pnpm functions:dev",
+    "tokens": "node packages/ui-tokens/generate.mjs apps/web/src/app/globals.css"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
