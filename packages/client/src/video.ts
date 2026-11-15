@@ -49,8 +49,8 @@ function durationFromMoov(moov: DataView): number | null {
 }
 
 /** A minimal, valid-container MP4 of the given duration (no media samples). For tests and fixtures. */
-export function makeTestMp4(seconds: number, opts: { moovLast?: boolean } = {}): Uint8Array {
-  const box = (type: string, body: Uint8Array) => {
+export function makeTestMp4(seconds: number, opts: { moovLast?: boolean } = {}): Uint8Array<ArrayBuffer> {
+  const box = (type: string, body: Uint8Array): Uint8Array<ArrayBuffer> => {
     const out = new Uint8Array(8 + body.length);
     const v = new DataView(out.buffer);
     v.setUint32(0, out.length);
