@@ -9,17 +9,12 @@ import { getCaller, requireStaff } from '../_shared/auth.ts';
 import type { Deps } from '../_shared/deps.ts';
 import { parseBody } from '../_shared/http.ts';
 import { notify } from '../_shared/notifications/notify.ts';
+import { provisionLinkedAccount } from '../_shared/linked-account.ts';
 import { loadPractitioner, transition } from '../_shared/practitioner.ts';
 
 const ALL_STAFF: StaffRole[] = ['reviewer', 'support', 'finance', 'super_admin'];
 const REVIEW_ACTIONS = new Set(['request_changes', 'reject', 'approve', 'trial_missed']);
 
-/** Hook for work that follows an approval (Razorpay linked account — Task 17). */
-export type AfterApprove = (deps: Deps, practitionerId: string) => Promise<void>;
-let afterApprove: AfterApprove = async () => {};
-export function setAfterApprove(fn: AfterApprove) {
-  afterApprove = fn;
-}
 
 export async function adminTransition(req: Request, deps: Deps) {
   const caller = await getCaller(req, deps);
@@ -81,7 +76,7 @@ export async function adminTransition(req: Request, deps: Deps) {
       break;
     case 'approve':
       await notify(deps, p.user_id, 'application_approved', { name });
-      await afterApprove(deps, p.id);
+      await deps.background(provisionLinkedAccount(deps, p.id));
       break;
     case 'suspend':
       await notify(deps, p.user_id, 'account_suspended', { name, reason });

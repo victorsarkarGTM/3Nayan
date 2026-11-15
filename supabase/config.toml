@@ -473,3 +473,15 @@ import_map = "./functions/deno.json"
 [functions.hms-webhook]
 verify_jwt = false
 import_map = "./functions/deno.json"
+
+[functions.razorpay-linked-account-retry]
+import_map = "./functions/deno.json"
+
+[functions.staff-document-url]
+import_map = "./functions/deno.json"
+
+[functions.account-deletion-request]
+import_map = "./functions/deno.json"
+
+[functions.account-deletion-process]
+import_map = "./functions/deno.json"

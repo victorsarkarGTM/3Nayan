@@ -8,6 +8,9 @@ import type { PushProvider } from './providers/push/types.ts';
 import { FakeHms } from './providers/hms/fake.ts';
 import { Hms100ms } from './providers/hms/real.ts';
 import type { HmsProvider } from './providers/hms/types.ts';
+import { FakeRazorpay } from './providers/razorpay/fake.ts';
+import { RazorpayRoute } from './providers/razorpay/real.ts';
+import type { RazorpayProvider } from './providers/razorpay/types.ts';
 import { CashfreeVerification } from './providers/verification/cashfree.ts';
 import { FakeVerification } from './providers/verification/fake.ts';
 import type { VerificationProvider } from './providers/verification/types.ts';
@@ -24,6 +27,10 @@ export type Deps = {
   push: PushProvider;
   verification: VerificationProvider;
   hms: HmsProvider;
+  razorpay: RazorpayProvider;
+  sleep: (ms: number) => Promise<void>;
+  /** Run work after the response when the runtime supports it (Edge Runtime), else await it. */
+  background: (work: Promise<unknown>) => Promise<void>;
 };
 
 export function serviceClientFrom(env: Env): SupabaseClient {
@@ -44,5 +51,12 @@ export function makeDeps(env: Env): Deps {
     push: real ? new ExpoPush(env) : new FakePush(),
     verification: real ? new CashfreeVerification(env) : new FakeVerification(),
     hms: real ? new Hms100ms(env) : new FakeHms(),
+    razorpay: real ? new RazorpayRoute(env) : new FakeRazorpay(),
+    sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+    background: async (work) => {
+      const rt = (globalThis as { EdgeRuntime?: { waitUntil(p: Promise<unknown>): void } }).EdgeRuntime;
+      if (rt) rt.waitUntil(work);
+      else await work;
+    },
   };
 }
