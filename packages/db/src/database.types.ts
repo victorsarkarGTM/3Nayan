@@ -37,6 +37,26 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"categories": {
+                  Row: {
+                    "active": boolean,"created_at": string,"id": string,"name": string,"parent_id": string | null,"slug": string,"sort_order": number,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "active"?: boolean,"created_at"?: string,"id"?: string,"name": string,"parent_id"?: string | null,"slug": string,"sort_order"?: number,"updated_at"?: string
+                  }
+                  Update: {
+                    "active"?: boolean,"created_at"?: string,"id"?: string,"name"?: string,"parent_id"?: string | null,"slug"?: string,"sort_order"?: number,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "categories_parent_id_fkey"
+      columns: ["parent_id"]
+isOneToOne: false
+      referencedRelation: "categories"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"consents": {
                   Row: {
                     "accepted_at": string,"created_at": string,"document": string,"id": string,"updated_at": string,"user_id": string,"version": string
@@ -61,6 +81,66 @@ export type Database = {
                   }
                   Update: {
                     "created_at"?: string,"key"?: string,"updated_at"?: string,"value"?: NonNullable<Json>
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"practitioner_categories": {
+                  Row: {
+                    "category_id": string,"created_at": string,"practitioner_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "category_id": string,"created_at"?: string,"practitioner_id": string
+                  }
+                  Update: {
+                    "category_id"?: string,"created_at"?: string,"practitioner_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "practitioner_categories_category_id_fkey"
+      columns: ["category_id"]
+isOneToOne: false
+      referencedRelation: "categories"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "practitioner_categories_practitioner_id_fkey"
+      columns: ["practitioner_id"]
+isOneToOne: false
+      referencedRelation: "practitioners"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"practitioner_documents": {
+                  Row: {
+                    "created_at": string,"file_name": string,"id": string,"kind": string,"mime_type": string,"practitioner_id": string,"size_bytes": number,"storage_path": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"file_name": string,"id"?: string,"kind": string,"mime_type": string,"practitioner_id": string,"size_bytes": number,"storage_path": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"file_name"?: string,"id"?: string,"kind"?: string,"mime_type"?: string,"practitioner_id"?: string,"size_bytes"?: number,"storage_path"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "practitioner_documents_practitioner_id_fkey"
+      columns: ["practitioner_id"]
+isOneToOne: false
+      referencedRelation: "practitioners"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"practitioners": {
+                  Row: {
+                    "address_full": string | null,"agreement_version": string | null,"approved_at": string | null,"assigned_reviewer_id": string | null,"bio": string | null,"city": string | null,"created_at": string,"credentials_text": string | null,"declaration_accepted": boolean,"display_name": string | null,"email": string | null,"gstin": string | null,"id": string,"languages": (string)[],"lat": number | null,"links": (string)[],"lng": number | null,"location": unknown,"offers_in_person": boolean,"offers_online": boolean,"photo_path": string | null,"pincode": string | null,"razorpay_account_id": string | null,"razorpay_account_status": string | null,"reapply_after": string | null,"residential_address": Json | null,"status": Database["public"]['Enums']["practitioner_status"],"submitted_at": string | null,"updated_at": string,"user_id": string,"video_bytes": number | null,"video_duration_seconds": number | null,"video_mime": string | null,"video_path": string | null,"years_experience": number | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "address_full"?: string | null,"agreement_version"?: string | null,"approved_at"?: string | null,"assigned_reviewer_id"?: string | null,"bio"?: string | null,"city"?: string | null,"created_at"?: string,"credentials_text"?: string | null,"declaration_accepted"?: boolean,"display_name"?: string | null,"email"?: string | null,"gstin"?: string | null,"id"?: string,"languages"?: (string)[],"lat"?: number | null,"links"?: (string)[],"lng"?: number | null,"location"?: never,"offers_in_person"?: boolean,"offers_online"?: boolean,"photo_path"?: string | null,"pincode"?: string | null,"razorpay_account_id"?: string | null,"razorpay_account_status"?: string | null,"reapply_after"?: string | null,"residential_address"?: Json | null,"status"?: Database["public"]['Enums']["practitioner_status"],"submitted_at"?: string | null,"updated_at"?: string,"user_id": string,"video_bytes"?: number | null,"video_duration_seconds"?: number | null,"video_mime"?: string | null,"video_path"?: string | null,"years_experience"?: number | null
+                  }
+                  Update: {
+                    "address_full"?: string | null,"agreement_version"?: string | null,"approved_at"?: string | null,"assigned_reviewer_id"?: string | null,"bio"?: string | null,"city"?: string | null,"created_at"?: string,"credentials_text"?: string | null,"declaration_accepted"?: boolean,"display_name"?: string | null,"email"?: string | null,"gstin"?: string | null,"id"?: string,"languages"?: (string)[],"lat"?: number | null,"links"?: (string)[],"lng"?: number | null,"location"?: never,"offers_in_person"?: boolean,"offers_online"?: boolean,"photo_path"?: string | null,"pincode"?: string | null,"razorpay_account_id"?: string | null,"razorpay_account_status"?: string | null,"reapply_after"?: string | null,"residential_address"?: Json | null,"status"?: Database["public"]['Enums']["practitioner_status"],"submitted_at"?: string | null,"updated_at"?: string,"user_id"?: string,"video_bytes"?: number | null,"video_duration_seconds"?: number | null,"video_mime"?: string | null,"video_path"?: string | null,"years_experience"?: number | null
                   }
                   Relationships: [
                     
@@ -102,12 +182,18 @@ export type Database = {
             "is_staff":
 { Args: { "roles"?: (Database["public"]['Enums']["staff_role"])[] }; Returns: boolean
                            },
+"owns_editable_practitioner":
+{ Args: { "p_id": string }; Returns: boolean
+                           },
+"owns_practitioner":
+{ Args: { "p_id": string }; Returns: boolean
+                           },
 "write_audit":
 { Args: { "p_action": string,"p_actor_id": string,"p_actor_kind": string,"p_metadata": Json,"p_target_id": string,"p_target_table": string }; Returns: undefined
                            }
           }
           Enums: {
-            "staff_role": "reviewer"|"support"|"finance"|"super_admin"
+            "practitioner_status": "draft"|"submitted"|"in_review"|"changes_requested"|"trial_scheduled"|"approved"|"rejected"|"suspended","staff_role": "reviewer"|"support"|"finance"|"super_admin"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -227,7 +313,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "staff_role": ["reviewer", "support", "finance", "super_admin"]
+            "practitioner_status": ["draft", "submitted", "in_review", "changes_requested", "trial_scheduled", "approved", "rejected", "suspended"],"staff_role": ["reviewer", "support", "finance", "super_admin"]
           }
         }
 } as const

@@ -2,7 +2,7 @@
 -- so the pgTAP extension and test helpers persist for later test files.
 create extension if not exists pgtap with schema extensions;
 create schema if not exists tests;
-grant usage on schema tests to anon, authenticated;
+grant usage on schema tests to anon, authenticated, service_role;
 
 -- Create an auth user (phone and/or email); returns its id.
 create or replace function tests.create_user(p_phone text default null, p_email text default null)
