@@ -5,3 +5,5 @@ export * from './phone.ts';
 export * from './schemas/application.ts';
 export * from './status/practitioner.ts';
 export * from './kyc/name-match.ts';
+export * from './trial/slots.ts';
+export * from './schemas/functions.ts';
