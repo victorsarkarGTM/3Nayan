@@ -23,7 +23,21 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "audit_log": {
+            "attention_items": {
+                  Row: {
+                    "created_at": string,"error": string | null,"id": string,"kind": string,"metadata": NonNullable<Json>,"resolved_at": string | null,"resolved_by": string | null,"status": string,"target_id": string | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"error"?: string | null,"id"?: string,"kind": string,"metadata"?: NonNullable<Json>,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"target_id"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"error"?: string | null,"id"?: string,"kind"?: string,"metadata"?: NonNullable<Json>,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"target_id"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"audit_log": {
                   Row: {
                     "action": string,"actor_id": string | null,"actor_kind": string,"created_at": string,"id": string,"metadata": NonNullable<Json>,"target_id": string | null,"target_table": string | null
                   }
@@ -33,6 +47,20 @@ export type Database = {
                   }
                   Update: {
                     "action"?: string,"actor_id"?: string | null,"actor_kind"?: string,"created_at"?: string,"id"?: string,"metadata"?: NonNullable<Json>,"target_id"?: string | null,"target_table"?: string | null
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"call_events": {
+                  Row: {
+                    "at": string,"call_id": string,"call_kind": string,"created_at": string,"event": string,"id": string,"user_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "at": string,"call_id": string,"call_kind": string,"created_at"?: string,"event": string,"id"?: string,"user_id"?: string | null
+                  }
+                  Update: {
+                    "at"?: string,"call_id"?: string,"call_kind"?: string,"created_at"?: string,"event"?: string,"id"?: string,"user_id"?: string | null
                   }
                   Relationships: [
                     
@@ -67,6 +95,48 @@ isOneToOne: false
                   }
                   Update: {
                     "accepted_at"?: string,"created_at"?: string,"document"?: string,"id"?: string,"updated_at"?: string,"user_id"?: string,"version"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"deletion_requests": {
+                  Row: {
+                    "completed_at": string | null,"created_at": string,"id": string,"requested_at": string,"status": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "completed_at"?: string | null,"created_at"?: string,"id"?: string,"requested_at"?: string,"status"?: string,"user_id": string
+                  }
+                  Update: {
+                    "completed_at"?: string | null,"created_at"?: string,"id"?: string,"requested_at"?: string,"status"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"device_tokens": {
+                  Row: {
+                    "created_at": string,"expo_token": string,"id": string,"last_seen_at": string,"platform": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"expo_token": string,"id"?: string,"last_seen_at"?: string,"platform": string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"expo_token"?: string,"id"?: string,"last_seen_at"?: string,"platform"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"notifications": {
+                  Row: {
+                    "channel": string,"created_at": string,"data": NonNullable<Json>,"error": string | null,"id": string,"provider_ref": string | null,"status": string,"template_key": string,"updated_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "channel": string,"created_at"?: string,"data"?: NonNullable<Json>,"error"?: string | null,"id"?: string,"provider_ref"?: string | null,"status": string,"template_key": string,"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "channel"?: string,"created_at"?: string,"data"?: NonNullable<Json>,"error"?: string | null,"id"?: string,"provider_ref"?: string | null,"status"?: string,"template_key"?: string,"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
                     
@@ -213,6 +283,26 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"trial_calls": {
+                  Row: {
+                    "created_at": string,"hms_room_id": string | null,"hour_reminder_sent": boolean,"id": string,"notes": string | null,"outcome_recorded_at": string | null,"pick_reminder_sent": boolean,"practitioner_id": string,"proposed_at": string | null,"proposed_slots": (string)[],"reschedule_used": boolean,"reviewer_id": string,"scheduled_at": string | null,"status": Database["public"]['Enums']["trial_status"],"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"hms_room_id"?: string | null,"hour_reminder_sent"?: boolean,"id"?: string,"notes"?: string | null,"outcome_recorded_at"?: string | null,"pick_reminder_sent"?: boolean,"practitioner_id": string,"proposed_at"?: string | null,"proposed_slots"?: (string)[],"reschedule_used"?: boolean,"reviewer_id": string,"scheduled_at"?: string | null,"status"?: Database["public"]['Enums']["trial_status"],"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"hms_room_id"?: string | null,"hour_reminder_sent"?: boolean,"id"?: string,"notes"?: string | null,"outcome_recorded_at"?: string | null,"pick_reminder_sent"?: boolean,"practitioner_id"?: string,"proposed_at"?: string | null,"proposed_slots"?: (string)[],"reschedule_used"?: boolean,"reviewer_id"?: string,"scheduled_at"?: string | null,"status"?: Database["public"]['Enums']["trial_status"],"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "trial_calls_practitioner_id_fkey"
+      columns: ["practitioner_id"]
+isOneToOne: false
+      referencedRelation: "practitioners"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"verification_checks": {
                   Row: {
                     "attempt_times": (string)[],"attempts": number,"bank_account_encrypted": string | null,"checked_at": string | null,"created_at": string,"id": string,"ifsc": string | null,"kind": string,"last_error": string | null,"masked_ref": string | null,"name_match_score": number | null,"practitioner_id": string,"provider_ref": string | null,"status": string,"updated_at": string,"verified_name": string | null,"year_of_birth": number | null
@@ -250,6 +340,9 @@ isOneToOne: false
             "apply_practitioner_transition":
 { Args: { "p_action": string,"p_actor": string,"p_actor_kind": string,"p_from": Database["public"]['Enums']["practitioner_status"],"p_id": string,"p_patch"?: Json,"p_reason": string,"p_to": Database["public"]['Enums']["practitioner_status"] }; Returns: boolean
                            },
+"can_write_practitioner_object":
+{ Args: { "p_name": string }; Returns: boolean
+                           },
 "is_staff":
 { Args: { "roles"?: (Database["public"]['Enums']["staff_role"])[] }; Returns: boolean
                            },
@@ -270,7 +363,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "practitioner_status": "draft"|"submitted"|"in_review"|"changes_requested"|"trial_scheduled"|"approved"|"rejected"|"suspended","staff_role": "reviewer"|"support"|"finance"|"super_admin"
+            "practitioner_status": "draft"|"submitted"|"in_review"|"changes_requested"|"trial_scheduled"|"approved"|"rejected"|"suspended","staff_role": "reviewer"|"support"|"finance"|"super_admin","trial_status": "proposed"|"scheduled"|"completed"|"missed"|"expired"|"cancelled"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -390,7 +483,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "practitioner_status": ["draft", "submitted", "in_review", "changes_requested", "trial_scheduled", "approved", "rejected", "suspended"],"staff_role": ["reviewer", "support", "finance", "super_admin"]
+            "practitioner_status": ["draft", "submitted", "in_review", "changes_requested", "trial_scheduled", "approved", "rejected", "suspended"],"staff_role": ["reviewer", "support", "finance", "super_admin"],"trial_status": ["proposed", "scheduled", "completed", "missed", "expired", "cancelled"]
           }
         }
 } as const
