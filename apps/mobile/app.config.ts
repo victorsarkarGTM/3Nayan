@@ -8,8 +8,15 @@ const config: ExpoConfig = {
   orientation: 'portrait',
   icon: './assets/images/icon.png',
   userInterfaceStyle: 'light',
-  ios: { bundleIdentifier: 'in.threenayan.app', supportsTablet: false },
-  android: { package: 'in.threenayan.app', adaptiveIcon: { foregroundImage: './assets/images/android-icon-foreground.png', backgroundColor: '#FFFFFF' } },
+  ios: {
+    bundleIdentifier: 'in.threenayan.app',
+    supportsTablet: false,
+    infoPlist: {
+      NSCameraUsageDescription: '3Nayan uses the camera for your trial video call and introduction video.',
+      NSMicrophoneUsageDescription: '3Nayan uses the microphone for your trial video call and introduction video.',
+    },
+  },
+  android: { package: 'in.threenayan.app', permissions: ['CAMERA', 'RECORD_AUDIO', 'MODIFY_AUDIO_SETTINGS', 'BLUETOOTH_CONNECT'], adaptiveIcon: { foregroundImage: './assets/images/android-icon-foreground.png', backgroundColor: '#FFFFFF' } },
   plugins: [
     'expo-router',
     'expo-secure-store',

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
+    "@100mslive/react-native-hms": "^1.12.3",
     "@3nayan/client": "workspace:*",
     "@3nayan/db": "workspace:*",
     "@3nayan/shared": "workspace:*",

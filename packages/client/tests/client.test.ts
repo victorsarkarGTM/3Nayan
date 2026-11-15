@@ -5,6 +5,7 @@ import {
   getMyApplication,
   listApplications,
   searchPractitioners,
+  uploadAvatar,
   listCategories,
   saveStep,
   startApplication,
@@ -94,5 +95,17 @@ describe('searchPractitioners', () => {
     const { sb } = await signedInStaff('support');
     const rows = await searchPractitioners(sb, name);
     expect(rows.map((r) => r.display_name)).toContain(name);
+  });
+});
+
+describe('uploads with raw bytes (React Native)', () => {
+  it('uploadAvatar stores the provided ArrayBuffer body', async () => {
+    const { sb, userId } = await signedInUser();
+    const bytes = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10, 1, 2, 3, 4]).buffer;
+    const meta = { type: 'image/png', size: bytes.byteLength } as Blob;
+    const { path } = await uploadAvatar(sb, meta, { body: bytes });
+    expect(path.startsWith(`${userId}/`)).toBe(true);
+    const { data } = await admin().storage.from('avatars').download(path);
+    expect(data!.size).toBe(12);
   });
 });

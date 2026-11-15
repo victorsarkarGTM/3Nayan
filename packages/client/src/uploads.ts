@@ -22,13 +22,19 @@ function assertFile(kind: 'photo' | 'certificate' | 'video', file: Blob) {
   }
 }
 
+/**
+ * Upload options. `body` lets React Native pass the file's bytes (Supabase Storage uploads of RN Blobs
+ * can arrive empty); `file` then only describes type and size. `tusSource` is the RN source for video.
+ */
+export type UploadOptions = { body?: ArrayBuffer; tusSource?: unknown };
+
 /** Upload a profile photo to the public avatars bucket; returns its storage path. */
-export async function uploadAvatar(sb: Sb, file: Blob): Promise<{ path: string; publicUrl: string }> {
+export async function uploadAvatar(sb: Sb, file: Blob, opts: UploadOptions = {}): Promise<{ path: string; publicUrl: string }> {
   assertFile('photo', file);
   const { data: u } = await sb.auth.getUser();
   if (!u.user) throw new AppError('unauthenticated');
   const path = `${u.user.id}/avatar-${crypto.randomUUID()}.${EXT[file.type]}`;
-  check(await sb.storage.from('avatars').upload(path, file, { contentType: file.type }));
+  check(await sb.storage.from('avatars').upload(path, opts.body ?? file, { contentType: file.type }));
   return { path, publicUrl: sb.storage.from('avatars').getPublicUrl(path).data.publicUrl };
 }
 
@@ -45,12 +51,12 @@ export async function uploadPractitionerFile(
   practitionerId: string,
   kind: 'certificate' | 'video',
   file: Blob,
-  opts: { fileName?: string; onProgress?: (pct: number) => void } = {},
+  opts: UploadOptions & { fileName?: string; onProgress?: (pct: number) => void } = {},
 ): Promise<{ path: string; documentId?: string }> {
   assertFile(kind, file);
   const path = `${practitionerId}/${kind}/${crypto.randomUUID()}.${EXT[file.type]}`;
   if (kind === 'certificate') {
-    check(await sb.storage.from('practitioner-private').upload(path, file, { contentType: file.type }));
+    check(await sb.storage.from('practitioner-private').upload(path, opts.body ?? file, { contentType: file.type }));
     const doc = check(
       await sb
         .from('practitioner_documents')
@@ -71,13 +77,14 @@ export async function uploadPractitionerFile(
   const { data: s } = await sb.auth.getSession();
   const { supabaseUrl, supabaseKey } = sb as unknown as { supabaseUrl: string; supabaseKey: string };
   await new Promise<void>((resolve, reject) => {
-    const upload = new tus.Upload(file, {
+    const upload = new tus.Upload((opts.tusSource as Blob | undefined) ?? file, {
       endpoint: `${supabaseUrl}/storage/v1/upload/resumable`,
       retryDelays: [0, 3000, 5000, 10000, 20000],
       headers: { authorization: `Bearer ${s.session?.access_token}`, apikey: supabaseKey, 'x-upsert': 'false' },
       uploadDataDuringCreation: true,
       removeFingerprintOnSuccess: true,
       chunkSize: 6 * 1024 * 1024,
+      ...(opts.tusSource ? { uploadSize: file.size } : {}),
       metadata: { bucketName: 'practitioner-private', objectName: path, contentType: file.type, cacheControl: '3600' },
       onError: () => reject(new AppError('internal', undefined, 'The upload was interrupted. Please try again — it will resume where it stopped.')),
       onProgress: (sent, total) => opts.onProgress?.(Math.round((sent / total) * 100)),

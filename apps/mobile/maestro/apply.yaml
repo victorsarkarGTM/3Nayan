@@ -1,0 +1,72 @@
+# Complete the 6-step practitioner application with fake providers and submit.
+# Prerequisites: run auth.yaml first (signed-in user "Maestro Tester"); functions dev server running
+# (pnpm functions:dev) with EXPO_PUBLIC_FUNCTIONS_URL=http://10.0.2.2:54331/functions/v1;
+# push fixtures to the emulator gallery: adb push apps/web/e2e/.fixtures/photo.png /sdcard/Pictures/
+# and a 30–120 s MP4 to /sdcard/Movies/.
+appId: in.threenayan.app
+---
+- launchApp
+- tapOn:
+    id: become-practitioner
+- tapOn:
+    id: display-name
+- inputText: "Maestro Practitioner"
+- tapOn:
+    id: pick-photo
+- tapOn:
+    index: 0
+    id: ".*thumbnail.*"
+    optional: true
+- tapOn:
+    id: bio
+- inputText: "I help people find calm and clarity through Reiki and guided breathwork, with care and patience for every person."
+- tapOn:
+    id: years
+- inputText: "6"
+- tapOn: "Reiki"
+- tapOn: "Hindi"
+- tapOn:
+    id: save-continue
+- tapOn: "Online sessions"
+- tapOn:
+    id: save-continue
+- tapOn:
+    id: save-continue
+- tapOn:
+    id: pick-video
+- tapOn:
+    index: 0
+    id: ".*thumbnail.*"
+    optional: true
+- assertVisible: "Uploaded.*"
+- tapOn:
+    id: save-continue
+- tapOn: "Email"
+- inputText: "maestro@example.com"
+- tapOn: "Address line 1"
+- inputText: "12 MG Road"
+- tapOn: "City"
+- inputText: "Pune"
+- tapOn: "State"
+- inputText: "Maharashtra"
+- tapOn: "PIN code"
+- inputText: "411001"
+- tapOn: "PAN"
+- inputText: "ABCDE1234F"
+- tapOn: "Verify PAN"
+- assertVisible: "✓ Verified.*"
+- tapOn: "Verify Aadhaar with DigiLocker"
+- tapOn: "Account number"
+- inputText: "123456783210"
+- tapOn: "IFSC"
+- inputText: "HDFC0001234"
+- tapOn: "Verify bank account"
+- tapOn:
+    id: save-continue
+- tapOn: "I will not diagnose.*"
+- tapOn: "I accept the Practitioner Agreement"
+- tapOn:
+    id: save-agreement
+- tapOn:
+    id: submit-application
+- assertVisible: "Application submitted"

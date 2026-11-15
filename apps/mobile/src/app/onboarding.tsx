@@ -33,8 +33,8 @@ export default function Onboarding() {
     try {
       let photoPath: string | undefined;
       if (photo) {
-        const blob = await (await fetch(photo.uri)).blob();
-        photoPath = (await uploadAvatar(supabase, new Blob([blob], { type: photo.mimeType ?? 'image/jpeg' }))).path;
+        const body = await (await fetch(photo.uri)).arrayBuffer();
+        photoPath = (await uploadAvatar(supabase, { type: photo.mimeType ?? 'image/jpeg', size: body.byteLength } as Blob, { body })).path;
       }
       await updateMyProfile(supabase, { fullName: name, photoPath });
       const v = await getLegalVersions(supabase);
