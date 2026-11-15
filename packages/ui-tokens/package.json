@@ -1,0 +1,8 @@
+{
+  "name": "@3nayan/ui-tokens",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": { "./tokens.json": "./tokens.json", "./tokens.css": "./tokens.css" },
+  "scripts": { "build:css": "node generate.mjs" }
+}
