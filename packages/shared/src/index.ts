@@ -3,3 +3,4 @@ export * from './constants.ts';
 export * from './errors.ts';
 export * from './phone.ts';
 export * from './schemas/application.ts';
+export * from './status/practitioner.ts';
