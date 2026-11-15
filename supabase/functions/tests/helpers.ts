@@ -5,6 +5,7 @@ import { serviceClientFrom, type Deps } from '../_shared/deps.ts';
 import { withHandler, type Handler } from '../_shared/http.ts';
 import { FakeSms, FakeWhatsApp } from '../_shared/providers/msg91/fake.ts';
 import { FakePush } from '../_shared/providers/push/fake.ts';
+import { FakeHms } from '../_shared/providers/hms/fake.ts';
 import { FakeVerification } from '../_shared/providers/verification/fake.ts';
 
 const env = (k: string) => process.env[k];
@@ -16,7 +17,7 @@ export function serviceClient(): SupabaseClient {
 /** Deps wired to the local database with fake providers. `envOverrides` win over process.env. */
 export function testDeps(envOverrides: Record<string, string> = {}, over: Partial<Deps> = {}): Deps {
   const e = (k: string) => envOverrides[k] ?? process.env[k];
-  return { db: serviceClient(), now: () => new Date(), env: e, sms: new FakeSms(), whatsapp: new FakeWhatsApp(), push: new FakePush(), verification: new FakeVerification(), ...over };
+  return { db: serviceClient(), now: () => new Date(), env: e, sms: new FakeSms(), whatsapp: new FakeWhatsApp(), push: new FakePush(), verification: new FakeVerification(), hms: new FakeHms(), ...over };
 }
 
 function anonClient(): SupabaseClient {

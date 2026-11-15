@@ -454,3 +454,22 @@ import_map = "./functions/deno.json"
 
 [functions.admin-transition]
 import_map = "./functions/deno.json"
+
+[functions.trial-propose]
+import_map = "./functions/deno.json"
+
+[functions.trial-select]
+import_map = "./functions/deno.json"
+
+[functions.trial-reschedule-request]
+import_map = "./functions/deno.json"
+
+[functions.trial-outcome]
+import_map = "./functions/deno.json"
+
+[functions.trial-join-token]
+import_map = "./functions/deno.json"
+
+[functions.hms-webhook]
+verify_jwt = false
+import_map = "./functions/deno.json"

@@ -5,6 +5,9 @@ import type { SmsProvider, WhatsAppProvider } from './providers/msg91/types.ts';
 import { FakePush } from './providers/push/fake.ts';
 import { ExpoPush } from './providers/push/real.ts';
 import type { PushProvider } from './providers/push/types.ts';
+import { FakeHms } from './providers/hms/fake.ts';
+import { Hms100ms } from './providers/hms/real.ts';
+import type { HmsProvider } from './providers/hms/types.ts';
 import { CashfreeVerification } from './providers/verification/cashfree.ts';
 import { FakeVerification } from './providers/verification/fake.ts';
 import type { VerificationProvider } from './providers/verification/types.ts';
@@ -20,6 +23,7 @@ export type Deps = {
   whatsapp: WhatsAppProvider;
   push: PushProvider;
   verification: VerificationProvider;
+  hms: HmsProvider;
 };
 
 export function serviceClientFrom(env: Env): SupabaseClient {
@@ -39,5 +43,6 @@ export function makeDeps(env: Env): Deps {
     whatsapp: real ? new Msg91WhatsApp(env) : new FakeWhatsApp(),
     push: real ? new ExpoPush(env) : new FakePush(),
     verification: real ? new CashfreeVerification(env) : new FakeVerification(),
+    hms: real ? new Hms100ms(env) : new FakeHms(),
   };
 }
