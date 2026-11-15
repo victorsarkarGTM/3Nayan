@@ -5,3 +5,4 @@ export * from './application.ts';
 export * from './uploads.ts';
 export * from './trials.ts';
 export * from './staff.ts';
+export * from './video.ts';

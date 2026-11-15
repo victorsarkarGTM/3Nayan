@@ -11,6 +11,7 @@
     "e2e": "playwright test --trace off"
   },
   "dependencies": {
+    "@100mslive/roomkit-react": "^0.6.3",
     "@3nayan/client": "workspace:*",
     "@3nayan/db": "workspace:*",
     "@3nayan/shared": "workspace:*",

@@ -126,3 +126,11 @@ export const startDigilocker = (sb: Sb, platform: 'web' | 'mobile') =>
   callFunction<{ url: string }>(sb, 'kyc-digilocker-start', { platform });
 export const submitApplication = (sb: Sb) => callFunction<{ status: string }>(sb, 'practitioner-submit', {});
 export const reapply = (sb: Sb) => callFunction<{ status: string }>(sb, 'practitioner-reapply', {});
+
+export async function listMyCertificates(sb: Sb) {
+  const p = await myPractitioner(sb);
+  if (!p) return [];
+  return check(
+    await sb.from('practitioner_documents').select('id,file_name,size_bytes,created_at').eq('practitioner_id', p.id).order('created_at'),
+  );
+}
