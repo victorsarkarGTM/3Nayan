@@ -1,4 +1,5 @@
 import { Webhook } from 'standardwebhooks';
+import { normaliseIndianPhone } from '../_shared/core/index.ts';
 import type { Deps } from '../_shared/deps.ts';
 
 const MAX_PER_PHONE_PER_HOUR = 5;
@@ -24,7 +25,8 @@ export async function handleSendSms(req: Request, deps: Deps): Promise<Response>
     return hookError(401, 'Invalid signature');
   }
   const raw = payload.user.phone;
-  const phone = raw.startsWith('+') ? raw : `+${raw}`;
+  const phone = normaliseIndianPhone(raw.startsWith('+') ? raw : `+${raw}`);
+  if (!phone) return hookError(400, 'Enter a valid 10-digit Indian mobile number.');
   const since = new Date(deps.now().getTime() - 60 * 60 * 1000).toISOString();
   const { count, error: countError } = await deps.db
     .from('otp_sends')

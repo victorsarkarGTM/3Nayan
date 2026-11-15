@@ -10,7 +10,7 @@ import type { Deps } from '../_shared/deps.ts';
 import { parseBody } from '../_shared/http.ts';
 import { notify } from '../_shared/notifications/notify.ts';
 import { provisionLinkedAccount } from '../_shared/linked-account.ts';
-import { loadPractitioner, transition } from '../_shared/practitioner.ts';
+import { cancelOpenTrials, loadPractitioner, transition } from '../_shared/practitioner.ts';
 
 const ALL_STAFF: StaffRole[] = ['reviewer', 'support', 'finance', 'super_admin'];
 const REVIEW_ACTIONS = new Set(['request_changes', 'reject', 'approve', 'trial_missed']);
@@ -60,6 +60,7 @@ export async function adminTransition(req: Request, deps: Deps) {
     patch,
   });
   if (result.noop) return { status: result.status };
+  if (['request_changes', 'reject', 'suspend'].includes(input.action)) await cancelOpenTrials(deps, p.id);
 
   const name = p.display_name ?? '';
   const reason = input.reason?.trim() ?? '';

@@ -18,6 +18,7 @@ export type PractitionerRecord = PractitionerRow & {
   status: PractitionerStatus;
   assigned_reviewer_id: string | null;
   reapply_after: string | null;
+  updated_at: string;
 };
 
 export async function loadPractitioner(deps: Deps, id: string): Promise<PractitionerRecord> {
@@ -58,7 +59,19 @@ type TransitionInput = {
   expectedStatus: PractitionerStatus;
   ctx: Omit<TransitionContext, 'now'>;
   patch?: Record<string, string | null>;
+  /** Apply only if the row hasn't changed since this snapshot (submit). */
+  expectedUpdatedAt?: string;
 };
+
+/** Close any open trial when an application leaves review (reject, changes, suspend, deletion). */
+export async function cancelOpenTrials(deps: Deps, practitionerId: string): Promise<void> {
+  const { error } = await deps.db
+    .from('trial_calls')
+    .update({ status: 'cancelled' })
+    .eq('practitioner_id', practitionerId)
+    .in('status', ['proposed', 'scheduled']);
+  if (error) throw new Error(error.message);
+}
 
 /**
  * Validate with the shared status machine, then apply atomically (conditional on expectedStatus).
@@ -78,6 +91,7 @@ export async function transition(deps: Deps, t: TransitionInput): Promise<{ stat
     p_action: t.action,
     p_reason: t.ctx.reason?.trim() || null,
     p_patch: t.patch ?? {},
+    p_expected_updated_at: t.expectedUpdatedAt ?? null,
   });
   if (error) throw new Error(error.message);
   if (applied) return { status: plan.to, noop: false };

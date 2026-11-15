@@ -1,7 +1,8 @@
 // GENERATED — edit packages/shared/src and run `node scripts/sync-shared.mjs`.
 import { NAME_MATCH_THRESHOLD } from '../constants.ts';
 
-const HONORIFICS = new Set(['MR', 'MRS', 'MS', 'DR', 'SHRI', 'SMT', 'KUMARI']);
+// 'KUMARI' is deliberately not here: it is also a common given/middle name.
+const HONORIFICS = new Set(['MR', 'MRS', 'MS', 'DR', 'SHRI', 'SMT']);
 
 /** Uppercase, drop honorifics and non-letters, collapse spaces, sort tokens alphabetically. */
 export function normaliseName(s: string): string {
@@ -55,9 +56,14 @@ function jaroWinkler(a: string, b: string): number {
 /** A token below this similarity is treated as a different word, not a spelling variant. */
 const TOKEN_VARIANT_MIN = 0.88;
 
+/** An initial only weakly identifies a word ("P" could be Priya or Pradeep). */
+const INITIAL_SCORE = 0.8;
+/** A name with fewer than two full words can match, but never passes on its own. */
+const PARTIAL_NAME_CAP = 0.84;
+
 function tokenScore(t: string, u: string): number {
   if (t === u) return 1;
-  if ((t.length === 1 && u.startsWith(t)) || (u.length === 1 && t.startsWith(u))) return 1;
+  if ((t.length === 1 && u.startsWith(t)) || (u.length === 1 && t.startsWith(u))) return INITIAL_SCORE;
   if (t.length === 1 || u.length === 1) return 0;
   const jw = jaroWinkler(t, u);
   return jw >= TOKEN_VARIANT_MIN ? jw : 0;
@@ -66,13 +72,17 @@ function tokenScore(t: string, u: string): number {
 /**
  * Similarity 0–1 between two personal names. Each word of the shorter name is paired with its best
  * unused word in the longer name (exact = 1, initial = 1, close spelling variant = its Jaro-Winkler
- * score, anything else = 0); the result is the mean. Order, case, honorifics, initials and omitted
- * middle names are tolerated; a different first or last name is not.
+ * score, anything else = 0); the result is the mean. Initials score 0.8, and a name with fewer than two
+ * full words is capped below the pass mark, so "P Sharma" or "KUMAR" always goes to a reviewer.
+ * Order, case, honorifics and omitted middle names are tolerated; a different first or last name is not.
  */
 export function nameMatchScore(a: string, b: string): number {
-  const ta = normaliseName(a).split(' ').filter(Boolean);
-  const tb = normaliseName(b).split(' ').filter(Boolean);
-  if (!ta.length || !tb.length) return 0;
+  const na = normaliseName(a);
+  const nb = normaliseName(b);
+  if (!na || !nb) return 0;
+  if (na === nb) return 1;
+  const ta = na.split(' ');
+  const tb = nb.split(' ');
   const [shorter, longer] = ta.length <= tb.length ? [ta, tb] : [tb, ta];
   const used = new Array<boolean>(longer.length).fill(false);
   let total = 0;
@@ -90,7 +100,9 @@ export function nameMatchScore(a: string, b: string): number {
     if (bestIdx >= 0) used[bestIdx] = true;
     total += best;
   }
-  return total / shorter.length;
+  const score = total / shorter.length;
+  const fullWords = shorter.filter((t) => t.length > 1).length;
+  return fullWords < 2 ? Math.min(score, PARTIAL_NAME_CAP) : score;
 }
 
 export function classifyNameMatch(scores: number[]): 'passed' | 'flagged' {

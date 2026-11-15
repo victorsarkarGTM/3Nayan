@@ -65,7 +65,8 @@ export class RazorpayRoute implements RazorpayProvider {
   }
 
   async addStakeholder(accountId: string, s: { name: string; email: string; pan: string }) {
-    await this.call('POST', `/v2/accounts/${accountId}/stakeholders`, { name: s.name, email: s.email, kyc: { pan: s.pan } });
+    const json = await this.call('POST', `/v2/accounts/${accountId}/stakeholders`, { name: s.name, email: s.email, kyc: { pan: s.pan } });
+    return { stakeholderId: String(json.id) };
   }
 
   async requestRouteProduct(accountId: string) {

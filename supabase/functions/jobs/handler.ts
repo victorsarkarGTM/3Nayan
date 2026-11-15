@@ -19,6 +19,7 @@ async function trialReminders(deps: Deps) {
     .from('trial_calls')
     .select('id,practitioner_id,reviewer_id,proposed_at,pick_reminder_sent, practitioners!inner(user_id,display_name)')
     .eq('status', 'proposed')
+    .eq('practitioners.status', 'in_review')
     .not('proposed_at', 'is', null);
   for (const t of proposed ?? []) {
     const p = t.practitioners as unknown as { user_id: string; display_name: string | null };
@@ -59,6 +60,7 @@ async function trialReminders(deps: Deps) {
     .from('trial_calls')
     .select('id,scheduled_at, practitioners!inner(user_id,display_name)')
     .eq('status', 'scheduled')
+    .eq('practitioners.status', 'trial_scheduled')
     .eq('hour_reminder_sent', false)
     .gte('scheduled_at', new Date(now.getTime() + 55 * MIN).toISOString())
     .lte('scheduled_at', new Date(now.getTime() + 65 * MIN).toISOString());

@@ -3,6 +3,7 @@ import { audit } from '../_shared/audit.ts';
 import { getCaller, requireStaff } from '../_shared/auth.ts';
 import type { Deps } from '../_shared/deps.ts';
 import { parseBody } from '../_shared/http.ts';
+import { cancelOpenTrials } from '../_shared/practitioner.ts';
 
 /**
  * Anonymise a user's personal data while keeping records the law requires (KYC results, consents,
@@ -26,6 +27,7 @@ export async function accountDeletionProcess(req: Request, deps: Deps) {
 
   const { data: p } = await db.from('practitioners').select('id,video_path').eq('user_id', userId).maybeSingle();
   if (p) {
+    await cancelOpenTrials(deps, p.id);
     if (p.video_path) await db.storage.from('practitioner-private').remove([p.video_path]);
     await db
       .from('practitioners')

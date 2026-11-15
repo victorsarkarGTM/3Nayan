@@ -21,6 +21,7 @@ export async function practitionerSubmit(req: Request, deps: Deps) {
     expectedStatus: p.status,
     ctx: { applicationComplete: completeness.complete && agreementCurrent },
     patch: { submitted_at: deps.now().toISOString() },
+    expectedUpdatedAt: p.updated_at,
   });
   if (!result.noop) await notify(deps, caller.userId, 'application_submitted', { name: p.display_name ?? '' });
   return { status: result.status };

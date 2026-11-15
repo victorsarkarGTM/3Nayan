@@ -1,6 +1,6 @@
+import { AppError } from '../_shared/core/index.ts';
 import type { Deps } from '../_shared/deps.ts';
-import { recordCheck } from '../_shared/kyc.ts';
-import { ProviderError } from '../_shared/providers/errors.ts';
+import { recordResult, reserveAttempt } from '../_shared/kyc.ts';
 
 function appRedirect(deps: Deps, state: string | null, outcome: 'done' | 'error'): Response {
   const target =
@@ -11,33 +11,41 @@ function appRedirect(deps: Deps, state: string | null, outcome: 'done' | 'error'
 }
 
 /**
- * DigiLocker redirect target (GET from the provider). Completion is fetched from the provider by
- * verification id, so a forged callback can't inject a result. Only the last 4 Aadhaar digits are stored.
+ * DigiLocker redirect target (GET from the provider). The verification id is claimed atomically, so
+ * a replayed callback does nothing; the application must still be editable; the result is fetched
+ * from the provider, so a forged callback can't inject data. Only the last 4 Aadhaar digits are kept.
  */
 export async function handleDigilockerCallback(req: Request, deps: Deps): Promise<Response> {
   const url = new URL(req.url);
   const verificationId = url.searchParams.get('verification_id');
   const state = url.searchParams.get('state');
   if (!verificationId) return appRedirect(deps, state, 'error');
-  const { data: row } = await deps.db
+  const { data: claimed } = await deps.db
     .from('verification_checks')
-    .select('id,kind,status,verified_name,attempts,attempt_times,practitioner_id')
+    .update({ pending_verification_id: null })
     .eq('kind', 'aadhaar')
-    .eq('provider_ref', verificationId)
-    .maybeSingle();
-  if (!row) return appRedirect(deps, state, 'error');
+    .eq('pending_verification_id', verificationId)
+    .select('practitioner_id');
+  const practitionerId: string | undefined = claimed?.[0]?.practitioner_id;
+  if (!practitionerId) return appRedirect(deps, state, 'error');
   try {
-    const r = await deps.verification.completeDigilocker(verificationId);
-    await recordCheck(deps, row, row.practitioner_id, {
-      valid: Boolean(r.name && r.aadhaarLast4.length === 4),
-      verifiedName: r.name,
-      providerRef: r.ref,
-      extra: { masked_ref: `XXXX XXXX ${r.aadhaarLast4}`, year_of_birth: r.yearOfBirth || null },
+    const r = await reserveAttempt(deps, practitionerId, 'aadhaar');
+    let completed;
+    try {
+      completed = await deps.verification.completeDigilocker(verificationId);
+    } catch (e) {
+      await deps.db.rpc('release_kyc_attempt', { p_check_id: r.checkId, p_at: r.at });
+      throw e;
+    }
+    await recordResult(deps, r, practitionerId, {
+      valid: Boolean(completed.name && completed.aadhaarLast4.length === 4),
+      verifiedName: completed.name,
+      providerRef: completed.ref,
+      extra: { masked_ref: `XXXX XXXX ${completed.aadhaarLast4}`, year_of_birth: completed.yearOfBirth || null },
     });
     return appRedirect(deps, state, 'done');
   } catch (e) {
-    console.error('digilocker completion failed', e instanceof ProviderError ? e.message : e);
-    await deps.db.from('verification_checks').update({ last_error: 'digilocker completion failed' }).eq('id', row.id);
+    if (!(e instanceof AppError)) console.error('digilocker completion failed', e instanceof Error ? e.message : e);
     return appRedirect(deps, state, 'error');
   }
 }

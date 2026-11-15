@@ -237,14 +237,14 @@ isOneToOne: false
                   ]
                 },"practitioners": {
                   Row: {
-                    "address_full": string | null,"agreement_version": string | null,"approved_at": string | null,"assigned_reviewer_id": string | null,"bio": string | null,"city": string | null,"created_at": string,"credentials_text": string | null,"declaration_accepted": boolean,"display_name": string | null,"email": string | null,"gstin": string | null,"id": string,"languages": (string)[],"lat": number | null,"links": (string)[],"lng": number | null,"location": unknown,"offers_in_person": boolean,"offers_online": boolean,"photo_path": string | null,"pincode": string | null,"razorpay_account_id": string | null,"razorpay_account_status": string | null,"reapply_after": string | null,"residential_address": Json | null,"status": Database["public"]['Enums']["practitioner_status"],"submitted_at": string | null,"updated_at": string,"user_id": string,"video_bytes": number | null,"video_duration_seconds": number | null,"video_mime": string | null,"video_path": string | null,"years_experience": number | null
+                    "address_full": string | null,"agreement_version": string | null,"approved_at": string | null,"assigned_reviewer_id": string | null,"bio": string | null,"city": string | null,"created_at": string,"credentials_text": string | null,"declaration_accepted": boolean,"display_name": string | null,"email": string | null,"gstin": string | null,"id": string,"languages": (string)[],"lat": number | null,"links": (string)[],"lng": number | null,"location": unknown,"offers_in_person": boolean,"offers_online": boolean,"photo_path": string | null,"pincode": string | null,"razorpay_account_id": string | null,"razorpay_account_status": string | null,"razorpay_product_id": string | null,"razorpay_settlement_configured": boolean,"razorpay_stakeholder_id": string | null,"reapply_after": string | null,"residential_address": Json | null,"status": Database["public"]['Enums']["practitioner_status"],"submitted_at": string | null,"updated_at": string,"user_id": string,"video_bytes": number | null,"video_duration_seconds": number | null,"video_mime": string | null,"video_path": string | null,"years_experience": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "address_full"?: string | null,"agreement_version"?: string | null,"approved_at"?: string | null,"assigned_reviewer_id"?: string | null,"bio"?: string | null,"city"?: string | null,"created_at"?: string,"credentials_text"?: string | null,"declaration_accepted"?: boolean,"display_name"?: string | null,"email"?: string | null,"gstin"?: string | null,"id"?: string,"languages"?: (string)[],"lat"?: number | null,"links"?: (string)[],"lng"?: number | null,"location"?: never,"offers_in_person"?: boolean,"offers_online"?: boolean,"photo_path"?: string | null,"pincode"?: string | null,"razorpay_account_id"?: string | null,"razorpay_account_status"?: string | null,"reapply_after"?: string | null,"residential_address"?: Json | null,"status"?: Database["public"]['Enums']["practitioner_status"],"submitted_at"?: string | null,"updated_at"?: string,"user_id": string,"video_bytes"?: number | null,"video_duration_seconds"?: number | null,"video_mime"?: string | null,"video_path"?: string | null,"years_experience"?: number | null
+                    "address_full"?: string | null,"agreement_version"?: string | null,"approved_at"?: string | null,"assigned_reviewer_id"?: string | null,"bio"?: string | null,"city"?: string | null,"created_at"?: string,"credentials_text"?: string | null,"declaration_accepted"?: boolean,"display_name"?: string | null,"email"?: string | null,"gstin"?: string | null,"id"?: string,"languages"?: (string)[],"lat"?: number | null,"links"?: (string)[],"lng"?: number | null,"location"?: never,"offers_in_person"?: boolean,"offers_online"?: boolean,"photo_path"?: string | null,"pincode"?: string | null,"razorpay_account_id"?: string | null,"razorpay_account_status"?: string | null,"razorpay_product_id"?: string | null,"razorpay_settlement_configured"?: boolean,"razorpay_stakeholder_id"?: string | null,"reapply_after"?: string | null,"residential_address"?: Json | null,"status"?: Database["public"]['Enums']["practitioner_status"],"submitted_at"?: string | null,"updated_at"?: string,"user_id": string,"video_bytes"?: number | null,"video_duration_seconds"?: number | null,"video_mime"?: string | null,"video_path"?: string | null,"years_experience"?: number | null
                   }
                   Update: {
-                    "address_full"?: string | null,"agreement_version"?: string | null,"approved_at"?: string | null,"assigned_reviewer_id"?: string | null,"bio"?: string | null,"city"?: string | null,"created_at"?: string,"credentials_text"?: string | null,"declaration_accepted"?: boolean,"display_name"?: string | null,"email"?: string | null,"gstin"?: string | null,"id"?: string,"languages"?: (string)[],"lat"?: number | null,"links"?: (string)[],"lng"?: number | null,"location"?: never,"offers_in_person"?: boolean,"offers_online"?: boolean,"photo_path"?: string | null,"pincode"?: string | null,"razorpay_account_id"?: string | null,"razorpay_account_status"?: string | null,"reapply_after"?: string | null,"residential_address"?: Json | null,"status"?: Database["public"]['Enums']["practitioner_status"],"submitted_at"?: string | null,"updated_at"?: string,"user_id"?: string,"video_bytes"?: number | null,"video_duration_seconds"?: number | null,"video_mime"?: string | null,"video_path"?: string | null,"years_experience"?: number | null
+                    "address_full"?: string | null,"agreement_version"?: string | null,"approved_at"?: string | null,"assigned_reviewer_id"?: string | null,"bio"?: string | null,"city"?: string | null,"created_at"?: string,"credentials_text"?: string | null,"declaration_accepted"?: boolean,"display_name"?: string | null,"email"?: string | null,"gstin"?: string | null,"id"?: string,"languages"?: (string)[],"lat"?: number | null,"links"?: (string)[],"lng"?: number | null,"location"?: never,"offers_in_person"?: boolean,"offers_online"?: boolean,"photo_path"?: string | null,"pincode"?: string | null,"razorpay_account_id"?: string | null,"razorpay_account_status"?: string | null,"razorpay_product_id"?: string | null,"razorpay_settlement_configured"?: boolean,"razorpay_stakeholder_id"?: string | null,"reapply_after"?: string | null,"residential_address"?: Json | null,"status"?: Database["public"]['Enums']["practitioner_status"],"submitted_at"?: string | null,"updated_at"?: string,"user_id"?: string,"video_bytes"?: number | null,"video_duration_seconds"?: number | null,"video_mime"?: string | null,"video_path"?: string | null,"years_experience"?: number | null
                   }
                   Relationships: [
                     
@@ -299,14 +299,14 @@ isOneToOne: false
                   ]
                 },"trial_calls": {
                   Row: {
-                    "created_at": string,"hms_room_id": string | null,"hour_reminder_sent": boolean,"id": string,"notes": string | null,"outcome_recorded_at": string | null,"pick_reminder_sent": boolean,"practitioner_id": string,"proposed_at": string | null,"proposed_slots": (string)[],"reschedule_used": boolean,"reviewer_id": string,"scheduled_at": string | null,"status": Database["public"]['Enums']["trial_status"],"updated_at": string
+                    "created_at": string,"hms_room_id": string | null,"hour_reminder_sent": boolean,"id": string,"outcome_recorded_at": string | null,"pick_reminder_sent": boolean,"practitioner_id": string,"proposed_at": string | null,"proposed_slots": (string)[],"reschedule_used": boolean,"reviewer_id": string,"scheduled_at": string | null,"status": Database["public"]['Enums']["trial_status"],"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"hms_room_id"?: string | null,"hour_reminder_sent"?: boolean,"id"?: string,"notes"?: string | null,"outcome_recorded_at"?: string | null,"pick_reminder_sent"?: boolean,"practitioner_id": string,"proposed_at"?: string | null,"proposed_slots"?: (string)[],"reschedule_used"?: boolean,"reviewer_id": string,"scheduled_at"?: string | null,"status"?: Database["public"]['Enums']["trial_status"],"updated_at"?: string
+                    "created_at"?: string,"hms_room_id"?: string | null,"hour_reminder_sent"?: boolean,"id"?: string,"outcome_recorded_at"?: string | null,"pick_reminder_sent"?: boolean,"practitioner_id": string,"proposed_at"?: string | null,"proposed_slots"?: (string)[],"reschedule_used"?: boolean,"reviewer_id": string,"scheduled_at"?: string | null,"status"?: Database["public"]['Enums']["trial_status"],"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"hms_room_id"?: string | null,"hour_reminder_sent"?: boolean,"id"?: string,"notes"?: string | null,"outcome_recorded_at"?: string | null,"pick_reminder_sent"?: boolean,"practitioner_id"?: string,"proposed_at"?: string | null,"proposed_slots"?: (string)[],"reschedule_used"?: boolean,"reviewer_id"?: string,"scheduled_at"?: string | null,"status"?: Database["public"]['Enums']["trial_status"],"updated_at"?: string
+                    "created_at"?: string,"hms_room_id"?: string | null,"hour_reminder_sent"?: boolean,"id"?: string,"outcome_recorded_at"?: string | null,"pick_reminder_sent"?: boolean,"practitioner_id"?: string,"proposed_at"?: string | null,"proposed_slots"?: (string)[],"reschedule_used"?: boolean,"reviewer_id"?: string,"scheduled_at"?: string | null,"status"?: Database["public"]['Enums']["trial_status"],"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -319,14 +319,14 @@ isOneToOne: false
                   ]
                 },"verification_checks": {
                   Row: {
-                    "attempt_times": (string)[],"attempts": number,"bank_account_encrypted": string | null,"checked_at": string | null,"created_at": string,"id": string,"ifsc": string | null,"kind": string,"last_error": string | null,"masked_ref": string | null,"name_match_score": number | null,"pan_encrypted": string | null,"practitioner_id": string,"provider_ref": string | null,"status": string,"updated_at": string,"verified_name": string | null,"year_of_birth": number | null
+                    "attempt_times": (string)[],"attempts": number,"bank_account_encrypted": string | null,"checked_at": string | null,"created_at": string,"id": string,"ifsc": string | null,"kind": string,"last_error": string | null,"masked_ref": string | null,"name_match_score": number | null,"pan_encrypted": string | null,"pending_verification_id": string | null,"practitioner_id": string,"provider_ref": string | null,"status": string,"updated_at": string,"verified_name": string | null,"year_of_birth": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "attempt_times"?: (string)[],"attempts"?: number,"bank_account_encrypted"?: string | null,"checked_at"?: string | null,"created_at"?: string,"id"?: string,"ifsc"?: string | null,"kind": string,"last_error"?: string | null,"masked_ref"?: string | null,"name_match_score"?: number | null,"pan_encrypted"?: string | null,"practitioner_id": string,"provider_ref"?: string | null,"status"?: string,"updated_at"?: string,"verified_name"?: string | null,"year_of_birth"?: number | null
+                    "attempt_times"?: (string)[],"attempts"?: number,"bank_account_encrypted"?: string | null,"checked_at"?: string | null,"created_at"?: string,"id"?: string,"ifsc"?: string | null,"kind": string,"last_error"?: string | null,"masked_ref"?: string | null,"name_match_score"?: number | null,"pan_encrypted"?: string | null,"pending_verification_id"?: string | null,"practitioner_id": string,"provider_ref"?: string | null,"status"?: string,"updated_at"?: string,"verified_name"?: string | null,"year_of_birth"?: number | null
                   }
                   Update: {
-                    "attempt_times"?: (string)[],"attempts"?: number,"bank_account_encrypted"?: string | null,"checked_at"?: string | null,"created_at"?: string,"id"?: string,"ifsc"?: string | null,"kind"?: string,"last_error"?: string | null,"masked_ref"?: string | null,"name_match_score"?: number | null,"pan_encrypted"?: string | null,"practitioner_id"?: string,"provider_ref"?: string | null,"status"?: string,"updated_at"?: string,"verified_name"?: string | null,"year_of_birth"?: number | null
+                    "attempt_times"?: (string)[],"attempts"?: number,"bank_account_encrypted"?: string | null,"checked_at"?: string | null,"created_at"?: string,"id"?: string,"ifsc"?: string | null,"kind"?: string,"last_error"?: string | null,"masked_ref"?: string | null,"name_match_score"?: number | null,"pan_encrypted"?: string | null,"pending_verification_id"?: string | null,"practitioner_id"?: string,"provider_ref"?: string | null,"status"?: string,"updated_at"?: string,"verified_name"?: string | null,"year_of_birth"?: number | null
                   }
                   Relationships: [
                     {
@@ -351,11 +351,20 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "apply_practitioner_transition":
-{ Args: { "p_action": string,"p_actor": string,"p_actor_kind": string,"p_from": Database["public"]['Enums']["practitioner_status"],"p_id": string,"p_patch"?: Json,"p_reason": string,"p_to": Database["public"]['Enums']["practitioner_status"] }; Returns: boolean
+            "apply_kyc_result":
+{ Args: { "p_check_id": string,"p_extra"?: Json,"p_provider_ref": string,"p_valid": boolean,"p_verified_name": string }; Returns: undefined
+                           },
+"apply_practitioner_transition":
+{ Args: { "p_action": string,"p_actor": string,"p_actor_kind": string,"p_expected_updated_at"?: string,"p_from": Database["public"]['Enums']["practitioner_status"],"p_id": string,"p_patch"?: Json,"p_reason": string,"p_to": Database["public"]['Enums']["practitioner_status"] }; Returns: boolean
+                           },
+"assert_practitioner_editable":
+{ Args: { "p_practitioner_id": string }; Returns: undefined
                            },
 "can_write_practitioner_object":
 { Args: { "p_name": string }; Returns: boolean
+                           },
+"http_links_only":
+{ Args: { "p_links": (string)[] }; Returns: boolean
                            },
 "invoke_job":
 { Args: { "p_job": string }; Returns: undefined
@@ -368,6 +377,12 @@ isOneToOne: false
                            },
 "owns_practitioner":
 { Args: { "p_id": string }; Returns: boolean
+                           },
+"release_kyc_attempt":
+{ Args: { "p_at"?: string,"p_check_id": string }; Returns: undefined
+                           },
+"reserve_kyc_attempt":
+{ Args: { "p_kind": string,"p_now": string,"p_practitioner_id": string }; Returns: string
                            },
 "reveal_bank_account":
 { Args: { "p_check_id": string }; Returns: string

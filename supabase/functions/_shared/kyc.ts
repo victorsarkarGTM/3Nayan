@@ -1,21 +1,15 @@
-import {
-  AppError,
-  KYC_MAX_ATTEMPTS_PER_24H,
-  classifyNameMatch,
-  nameMatchScore,
-} from './core/index.ts';
+import { AppError, KYC_MAX_ATTEMPTS_PER_24H, classifyNameMatch, nameMatchScore } from './core/index.ts';
 import type { Deps } from './deps.ts';
 import { ProviderError } from './providers/errors.ts';
 
 export type KycKind = 'pan' | 'aadhaar' | 'bank';
-type CheckRow = {
-  id: string;
-  kind: KycKind;
-  status: string;
-  verified_name: string | null;
-  attempts: number;
-  attempt_times: string[];
-};
+
+/** Map the KYC SQL functions' exceptions to API error codes. */
+function rpcError(error: { message: string }): never {
+  if (error.message.includes('not_editable')) throw new AppError('invalid_transition');
+  if (error.message.includes('kyc_attempts_exhausted')) throw new AppError('kyc_attempts_exhausted');
+  throw new Error(error.message);
+}
 
 /** The caller's practitioner, which must exist and be editable (draft / changes_requested). */
 export async function editablePractitionerFor(deps: Deps, userId: string): Promise<{ id: string; status: string }> {
@@ -25,73 +19,75 @@ export async function editablePractitionerFor(deps: Deps, userId: string): Promi
   return data;
 }
 
-async function getOrCreateCheck(deps: Deps, practitionerId: string, kind: KycKind): Promise<CheckRow> {
-  const { data, error } = await deps.db
+/** Non-binding pre-check (used before starting DigiLocker); the binding check is reserveAttempt. */
+export async function assertAttemptsAvailable(deps: Deps, practitionerId: string, kind: KycKind): Promise<void> {
+  const { data } = await deps.db
     .from('verification_checks')
-    .upsert({ practitioner_id: practitionerId, kind }, { onConflict: 'practitioner_id,kind', ignoreDuplicates: true })
-    .select('id,kind,status,verified_name,attempts,attempt_times');
-  if (error) throw new Error(error.message);
-  if (data?.[0]) return data[0] as CheckRow;
-  const { data: row, error: e2 } = await deps.db
-    .from('verification_checks')
-    .select('id,kind,status,verified_name,attempts,attempt_times')
+    .select('attempt_times')
     .eq('practitioner_id', practitionerId)
     .eq('kind', kind)
-    .single();
-  if (e2) throw new Error(e2.message);
-  return row as CheckRow;
+    .maybeSingle();
+  const now = deps.now().getTime();
+  const recent = (data?.attempt_times ?? []).filter((t: string) => now - new Date(t).getTime() < 24 * 3600_000);
+  if (recent.length >= KYC_MAX_ATTEMPTS_PER_24H) throw new AppError('kyc_attempts_exhausted');
 }
 
-const recentAttempts = (row: CheckRow, now: Date) =>
-  row.attempt_times.filter((t) => now.getTime() - new Date(t).getTime() < 24 * 3600_000);
+export type Reservation = { checkId: string; at: string };
 
-export async function assertAttemptsAvailable(deps: Deps, practitionerId: string, kind: KycKind): Promise<CheckRow> {
-  const row = await getOrCreateCheck(deps, practitionerId, kind);
-  if (recentAttempts(row, deps.now()).length >= KYC_MAX_ATTEMPTS_PER_24H) throw new AppError('kyc_attempts_exhausted');
-  return row;
+/** Atomically reserve one of the 3 attempts per 24h (also requires an editable application). */
+export async function reserveAttempt(deps: Deps, practitionerId: string, kind: KycKind): Promise<Reservation> {
+  const at = deps.now().toISOString();
+  const { data, error } = await deps.db.rpc('reserve_kyc_attempt', {
+    p_practitioner_id: practitionerId,
+    p_kind: kind,
+    p_now: at,
+  });
+  if (error) rpcError(error);
+  return { checkId: data as string, at };
 }
 
-/** Runs a provider call; outages become provider_unavailable and change nothing. */
-export async function callProvider<T>(fn: () => Promise<T>): Promise<T> {
+/**
+ * Run a provider call under a reservation. Outages release the reservation (the attempt doesn't
+ * count) and become provider_unavailable; nothing else is written.
+ */
+export async function callProvider<T>(deps: Deps, r: Reservation, fn: () => Promise<T>): Promise<T> {
   try {
     return await fn();
   } catch (e) {
     if (e instanceof ProviderError) {
       console.error('verification provider error', e.message);
+      await deps.db.rpc('release_kyc_attempt', { p_check_id: r.checkId, p_at: r.at });
       throw new AppError('provider_unavailable');
     }
     throw e;
   }
 }
 
+export async function storeSecret(deps: Deps, fn: 'store_pan' | 'store_bank_account', args: Record<string, string>) {
+  const { error } = await deps.db.rpc(fn, args);
+  if (error) rpcError(error);
+}
+
 /**
- * Record a completed provider result (counts as an attempt), then recompute name matching across
- * every valid check of this practitioner: a check's score is its worst match against the others.
+ * Record a completed provider result (only while the application is editable), then recompute name
+ * matching across the valid checks: a check's score is its worst match against the others.
  */
-export async function recordCheck(
+export async function recordResult(
   deps: Deps,
-  row: CheckRow,
+  r: Reservation,
   practitionerId: string,
   result: { valid: boolean; verifiedName: string; providerRef: string; extra?: Record<string, unknown> },
 ): Promise<{ status: string; nameMatchScore: number | null }> {
-  const now = deps.now();
-  const times = [...recentAttempts(row, now).map((t) => new Date(t).toISOString()), now.toISOString()];
-  const { error } = await deps.db
-    .from('verification_checks')
-    .update({
-      status: result.valid ? 'passed' : 'failed',
-      verified_name: result.valid ? result.verifiedName : null,
-      provider_ref: result.providerRef,
-      attempts: row.attempts + 1,
-      attempt_times: times,
-      last_error: null,
-      checked_at: now.toISOString(),
-      ...(result.extra ?? {}),
-    })
-    .eq('id', row.id);
-  if (error) throw new Error(error.message);
+  const { error } = await deps.db.rpc('apply_kyc_result', {
+    p_check_id: r.checkId,
+    p_valid: result.valid,
+    p_verified_name: result.verifiedName,
+    p_provider_ref: result.providerRef,
+    p_extra: result.extra ?? {},
+  });
+  if (error) rpcError(error);
   await recomputeNameMatch(deps, practitionerId);
-  const { data } = await deps.db.from('verification_checks').select('status,name_match_score').eq('id', row.id).single();
+  const { data } = await deps.db.from('verification_checks').select('status,name_match_score').eq('id', r.checkId).single();
   return { status: data!.status, nameMatchScore: data!.name_match_score === null ? null : Number(data!.name_match_score) };
 }
 

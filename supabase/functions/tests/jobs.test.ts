@@ -9,7 +9,7 @@ const svc = () => ({ token: process.env.SUPABASE_SERVICE_ROLE_KEY! });
 async function trial(over: Record<string, unknown>) {
   const a = await createApplicant();
   const rev = await createStaff('reviewer');
-  await setPractitionerStatus(a.practitionerId, 'in_review');
+  await setPractitionerStatus(a.practitionerId, over.status === 'scheduled' ? 'trial_scheduled' : 'in_review');
   const { data, error } = await serviceClient()
     .from('trial_calls')
     .insert({ practitioner_id: a.practitionerId, reviewer_id: rev.userId, proposed_slots: [], ...over })

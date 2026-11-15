@@ -12,7 +12,7 @@ async function provisionOnce(deps: Deps, practitionerId: string): Promise<void> 
   const db = deps.db;
   const { data: p, error } = await db
     .from('practitioners')
-    .select('id,user_id,email,residential_address,razorpay_account_id')
+    .select('id,user_id,email,residential_address,razorpay_account_id,razorpay_stakeholder_id,razorpay_product_id,razorpay_settlement_configured')
     .eq('id', practitionerId)
     .single();
   if (error || !p) throw new Error(`practitioner ${practitionerId} not found`);
@@ -33,6 +33,10 @@ async function provisionOnce(deps: Deps, practitionerId: string): Promise<void> 
   if (!panNumber || !accountNumber || !bankRow?.ifsc) throw new Error('encrypted PAN or bank details missing');
   const legalName = pan.verified_name ?? bank.verified_name ?? '';
   const referenceId = referenceIdFor(practitionerId);
+  const save = async (values: Record<string, unknown>) => {
+    const { error: saveError } = await db.from('practitioners').update(values).eq('id', practitionerId);
+    if (saveError) throw new Error(`could not save Razorpay progress: ${saveError.message}`);
+  };
 
   let accountId: string | null = p.razorpay_account_id;
   if (!accountId) {
@@ -52,17 +56,28 @@ async function provisionOnce(deps: Deps, practitionerId: string): Promise<void> 
       accountId = await deps.razorpay.findAccountByReference(referenceId);
       if (!accountId) throw e;
     }
-    await db.from('practitioners').update({ razorpay_account_id: accountId }).eq('id', practitionerId);
+    await save({ razorpay_account_id: accountId });
   }
-  await deps.razorpay.addStakeholder(accountId, { name: legalName, email: p.email, pan: panNumber });
-  const { productId } = await deps.razorpay.requestRouteProduct(accountId);
-  await deps.razorpay.configureSettlement(accountId, productId, {
-    accountNumber,
-    ifsc: bankRow.ifsc,
-    beneficiaryName: bank.verified_name ?? legalName,
-  });
+  // Each completed step is persisted, so a retry resumes where the last attempt stopped.
+  if (!p.razorpay_stakeholder_id) {
+    const { stakeholderId } = await deps.razorpay.addStakeholder(accountId, { name: legalName, email: p.email, pan: panNumber });
+    await save({ razorpay_stakeholder_id: stakeholderId });
+  }
+  let productId: string | null = p.razorpay_product_id;
+  if (!productId) {
+    productId = (await deps.razorpay.requestRouteProduct(accountId)).productId;
+    await save({ razorpay_product_id: productId });
+  }
+  if (!p.razorpay_settlement_configured) {
+    await deps.razorpay.configureSettlement(accountId, productId, {
+      accountNumber,
+      ifsc: bankRow.ifsc,
+      beneficiaryName: bank.verified_name ?? legalName,
+    });
+    await save({ razorpay_settlement_configured: true });
+  }
   const status = await deps.razorpay.getAccountStatus(accountId);
-  await db.from('practitioners').update({ razorpay_account_status: status }).eq('id', practitionerId);
+  await save({ razorpay_account_status: status });
 }
 
 /**

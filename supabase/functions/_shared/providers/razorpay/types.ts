@@ -14,7 +14,7 @@ export interface RazorpayProvider {
   createLinkedAccount(input: LinkedAccountInput): Promise<{ accountId: string }>;
   /** Existing account for a reference id, or null when the API can't look it up. */
   findAccountByReference(referenceId: string): Promise<string | null>;
-  addStakeholder(accountId: string, input: { name: string; email: string; pan: string }): Promise<void>;
+  addStakeholder(accountId: string, input: { name: string; email: string; pan: string }): Promise<{ stakeholderId: string }>;
   requestRouteProduct(accountId: string): Promise<{ productId: string }>;
   configureSettlement(
     accountId: string,

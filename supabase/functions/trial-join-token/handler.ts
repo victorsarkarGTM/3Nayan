@@ -18,7 +18,14 @@ export async function trialJoinToken(req: Request, deps: Deps) {
   } else {
     throw new AppError('forbidden');
   }
-  if (trial.status !== 'scheduled' || !trial.scheduled_at || !trial.hms_room_id) throw new AppError('invalid_transition');
+  if (
+    trial.status !== 'scheduled' ||
+    trial.practitioner_status !== 'trial_scheduled' ||
+    !trial.scheduled_at ||
+    !trial.hms_room_id
+  ) {
+    throw new AppError('invalid_transition');
+  }
   if (!isWithinJoinWindow(new Date(trial.scheduled_at), deps.now())) throw new AppError('outside_join_window');
   const token = await deps.hms.authToken(trial.hms_room_id, caller.userId, role);
   return { token, roomId: trial.hms_room_id, role };

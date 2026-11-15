@@ -12,6 +12,9 @@ type FakeAccount = {
 export class FakeRazorpay implements RazorpayProvider {
   readonly accounts = new Map<string, FakeAccount>();
   failNext = 0;
+  /** Fail the first requestRouteProduct call (simulates a failure after the stakeholder step). */
+  failProductOnce = false;
+  stakeholderCalls = 0;
   statusOverride: AccountStatus | null = null;
 
   private maybeFail() {
@@ -36,9 +39,18 @@ export class FakeRazorpay implements RazorpayProvider {
     return this.accounts.get(referenceId)?.id ?? null;
   }
   async addStakeholder(accountId: string, input: { name: string; email: string; pan: string }) {
-    this.byId(accountId).stakeholder = input;
+    this.stakeholderCalls++;
+    const a = this.byId(accountId);
+    // Like the real API: a second stakeholder for the same individual account is rejected.
+    if (a.stakeholder) throw new ProviderError('stakeholder already exists');
+    a.stakeholder = input;
+    return { stakeholderId: `sth_${accountId}` };
   }
   async requestRouteProduct(accountId: string) {
+    if (this.failProductOnce) {
+      this.failProductOnce = false;
+      throw new ProviderError('fake product outage');
+    }
     const a = this.byId(accountId);
     a.productId = a.productId ?? `acc_prd_${accountId}`;
     return { productId: a.productId };

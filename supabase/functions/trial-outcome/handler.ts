@@ -14,12 +14,19 @@ export async function trialOutcome(req: Request, deps: Deps) {
   if (trial.status !== 'scheduled') throw new AppError('invalid_transition');
   const { data: updated, error } = await deps.db
     .from('trial_calls')
-    .update({ status: outcome, notes, outcome_recorded_at: deps.now().toISOString() })
+    .update({ status: outcome, outcome_recorded_at: deps.now().toISOString() })
     .eq('id', trial.id)
     .eq('status', 'scheduled')
     .select('id');
   if (error) throw new Error(error.message);
   if (!updated?.length) throw new AppError('conflict');
+  // Reviewer notes are internal: stored with the staff-only review notes, never on the trial row.
+  const { error: noteError } = await deps.db.from('review_notes').insert({
+    practitioner_id: trial.practitioner_id,
+    staff_id: caller.userId,
+    body: `Trial call (${outcome}): ${notes}`,
+  });
+  if (noteError) throw new Error(noteError.message);
   if (outcome === 'missed') {
     await transition(deps, {
       practitionerId: trial.practitioner_id,
