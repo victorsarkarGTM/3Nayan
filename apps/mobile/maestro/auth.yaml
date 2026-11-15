@@ -1,0 +1,27 @@
+# Sign up with a local test number (OTP 123456 — see supabase/config.toml) and reach Home.
+# Run on an emulator/simulator with the dev build and the local stack:
+#   EXPO_PUBLIC_SUPABASE_URL=http://10.0.2.2:54321 … npx expo run:android
+#   maestro test apps/mobile/maestro/auth.yaml
+appId: in.threenayan.app
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: phone-input
+- inputText: "99999 00011"
+- tapOn:
+    id: send-code
+- tapOn:
+    id: otp-input
+- inputText: "123456"
+- tapOn:
+    id: verify
+- assertVisible: "Welcome to 3Nayan"
+- tapOn:
+    id: name-input
+- inputText: "Maestro Tester"
+- tapOn: "I accept the Terms of Use"
+- tapOn: "I accept the Privacy Policy"
+- tapOn:
+    id: continue
+- assertVisible: "Booking opens soon"

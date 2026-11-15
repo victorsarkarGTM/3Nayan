@@ -30,6 +30,12 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - name: Mobile app bundles (iOS + Android JavaScript)
+        run: pnpm --filter @3nayan/mobile bundle
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: http://localhost:54321
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
+          CI: '1'
       - name: Start local Supabase
         run: pnpm db:start
       - name: Database tests (pgTAP)
