@@ -19,6 +19,12 @@ jobs:
       - name: Shared code copied into Edge Functions is up to date
         if: hashFiles('scripts/sync-shared.mjs') != ''
         run: node scripts/sync-shared.mjs --check
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Edge Functions type-check under Deno
+        if: hashFiles('supabase/functions/deno.json') != ''
+        run: DENO=deno pnpm functions:check
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test

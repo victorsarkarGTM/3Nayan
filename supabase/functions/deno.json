@@ -1,0 +1,9 @@
+{
+  "compilerOptions": { "lib": ["deno.window"] },
+  "imports": {
+    "zod": "npm:zod@^3.25.0",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@^2.47.0",
+    "standardwebhooks": "npm:standardwebhooks@^1.0.0",
+    "jose": "npm:jose@^5.9.6"
+  }
+}

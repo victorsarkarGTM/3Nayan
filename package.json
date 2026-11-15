@@ -15,7 +15,10 @@
     "db:stop": "pnpm --filter @3nayan/db db:stop",
     "db:reset": "pnpm --filter @3nayan/db db:reset",
     "db:test": "pnpm --filter @3nayan/db db:test",
-    "db:types": "pnpm --filter @3nayan/db db:types"
+    "db:types": "pnpm --filter @3nayan/db db:types",
+    "stack:functions": "cp -n supabase/functions/.env.example supabase/functions/.env.local; pnpm --filter @3nayan/db exec supabase --workdir ../.. functions serve --env-file ../../supabase/functions/.env.local",
+    "sync:shared": "node scripts/sync-shared.mjs",
+    "functions:check": "bash scripts/check-functions.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
