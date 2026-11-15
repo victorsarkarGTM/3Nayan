@@ -1,16 +1,18 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState, type FormEvent } from 'react';
 import type { StaffRole } from '@3nayan/shared';
 import { Alert, Button, Card, Field, Logo, TextInput } from '@/components/ui';
 import { landingFor } from '@/lib/roles';
 import { supabase } from '@/lib/supabase';
 
-type Step = 'credentials' | 'enrol' | 'verify';
+type Step = 'credentials' | 'enrol' | 'verify' | 'forgot';
 
-export default function AdminLoginPage() {
+function AdminLogin() {
   const router = useRouter();
+  const params = useSearchParams();
+  const [notice, setNotice] = useState<string | null>(params.get('password') === 'set' ? 'Password set. Sign in to continue.' : null);
   const [step, setStep] = useState<Step>('credentials');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -59,6 +61,17 @@ export default function AdminLoginPage() {
     setBusy(false);
   }
 
+  async function sendReset(e: FormEvent) {
+    e.preventDefault();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) return setError('Enter your staff email address');
+    setBusy(true);
+    setError(null);
+    await supabase().auth.resetPasswordForEmail(email.trim(), { redirectTo: `${window.location.origin}/auth/accept` });
+    setBusy(false);
+    setNotice('If that email belongs to a staff account, we’ve sent a link to choose a new password.');
+    setStep('credentials');
+  }
+
   async function verify(e: FormEvent) {
     e.preventDefault();
     if (!/^\d{6}$/.test(code)) return setError('Enter the 6-digit code from your authenticator app');
@@ -79,8 +92,18 @@ export default function AdminLoginPage() {
         <Logo href="/login" suffix="Admin" />
         <h1 className="mt-4 text-2xl font-semibold">Staff sign in</h1>
       </div>
+      {notice && <Alert tone="success">{notice}</Alert>}
       <Card>
-        {step === 'credentials' ? (
+        {step === 'forgot' ? (
+          <form onSubmit={sendReset} className="flex flex-col gap-4" noValidate>
+            <p className="text-sm text-muted">We’ll email you a link to choose a new password.</p>
+            <Field label="Email" error={error}>
+              {(id, d) => <TextInput id={id} aria-describedby={d} type="email" autoComplete="username" value={email} onChange={(e) => (setEmail(e.target.value), setError(null))} />}
+            </Field>
+            <Button type="submit" busy={busy}>Send reset link</Button>
+            <Button type="button" variant="ghost" onClick={() => (setStep('credentials'), setError(null))}>Back to sign in</Button>
+          </form>
+        ) : step === 'credentials' ? (
           <form onSubmit={signIn} className="flex flex-col gap-4" noValidate>
             <Field label="Email">
               {(id) => <TextInput id={id} type="email" autoComplete="username" value={email} onChange={(e) => (setEmail(e.target.value), setError(null))} />}
@@ -91,6 +114,9 @@ export default function AdminLoginPage() {
             {error && <Alert tone="danger">{error}</Alert>}
             <Button type="submit" busy={busy}>
               Sign in
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => (setStep('forgot'), setError(null), setNotice(null))}>
+              Forgot password?
             </Button>
           </form>
         ) : (
@@ -120,5 +146,13 @@ export default function AdminLoginPage() {
         )}
       </Card>
     </main>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense>
+      <AdminLogin />
+    </Suspense>
   );
 }

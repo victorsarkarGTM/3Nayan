@@ -4,6 +4,7 @@ import { Alert, Linking } from 'react-native';
 import { getMyProfile, requestAccountDeletion, updateMyProfile } from '@3nayan/client';
 import { Button, Card, Field, H1, Muted, Notice, Screen } from '@/components/ui';
 import { messageForError } from '@/lib/errors';
+import { signOut } from '@/lib/push';
 import { supabase } from '@/lib/supabase';
 
 const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL ?? 'https://3nayan.in';
@@ -57,7 +58,7 @@ export default function Account() {
       <Card>
         <Muted>We’ll remove your personal details. Records the law requires us to keep are retained.</Muted>
         <Button label="Request account deletion" variant="secondary" onPress={confirmDeletion} />
-        <Button label="Sign out" variant="secondary" onPress={() => supabase.auth.signOut()} />
+        <Button label="Sign out" variant="secondary" onPress={() => signOut()} />
       </Card>
     </Screen>
   );

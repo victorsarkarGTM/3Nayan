@@ -6,6 +6,8 @@ import {
   listApplications,
   searchPractitioners,
   uploadAvatar,
+  removeCertificate,
+  chooseUploadPath,
   listCategories,
   saveStep,
   startApplication,
@@ -107,5 +109,52 @@ describe('uploads with raw bytes (React Native)', () => {
     expect(path.startsWith(`${userId}/`)).toBe(true);
     const { data } = await admin().storage.from('avatars').download(path);
     expect(data!.size).toBe(12);
+  });
+});
+
+describe('application drafts (review fixes)', () => {
+  it('a step-3 draft never deletes certificates the screen does not list', async () => {
+    const { sb } = await signedInUser();
+    const p = await startApplication(sb);
+    const { data: doc } = await admin().from('practitioner_documents').insert({
+      practitioner_id: p.id, kind: 'certificate', storage_path: `${p.id}/certificate/a.pdf`, file_name: 'a.pdf', mime_type: 'application/pdf', size_bytes: 1,
+    }).select('id').single();
+    await saveStep(sb, 3, { certificateIds: [], credentialsText: 'Typing…', links: [] }, { draft: true });
+    const { data } = await admin().from('practitioner_documents').select('id').eq('id', doc!.id);
+    expect(data).toHaveLength(1);
+  });
+
+  it('removeCertificate deletes exactly that certificate', async () => {
+    const { sb } = await signedInUser();
+    const p = await startApplication(sb);
+    const { data: doc } = await admin().from('practitioner_documents').insert({
+      practitioner_id: p.id, kind: 'certificate', storage_path: `${p.id}/certificate/b.pdf`, file_name: 'b.pdf', mime_type: 'application/pdf', size_bytes: 1,
+    }).select('id').single();
+    await removeCertificate(sb, doc!.id);
+    expect((await admin().from('practitioner_documents').select('id').eq('id', doc!.id)).data).toHaveLength(0);
+  });
+
+  it('a draft with a not-yet-valid link still saves the other fields', async () => {
+    const { sb } = await signedInUser();
+    await startApplication(sb);
+    await saveStep(sb, 3, { certificateIds: [], credentialsText: 'Reiki level 2', links: ['www.mysite.com'] }, { draft: true });
+    const app = await getMyApplication(sb);
+    expect(app.practitioner?.credentials_text).toBe('Reiki level 2');
+  });
+
+  it('a draft with 99 years of experience still saves the display name', async () => {
+    const { sb } = await signedInUser();
+    await startApplication(sb);
+    await saveStep(sb, 1, { displayName: 'Asha', yearsExperience: 99 }, { draft: true });
+    expect((await getMyApplication(sb)).practitioner?.display_name).toBe('Asha');
+  });
+});
+
+describe('resumable upload path', () => {
+  it('a resumed upload keeps the path it was started with', () => {
+    const pid = '00000000-0000-4000-8000-000000000001';
+    expect(chooseUploadPath([{ metadata: { objectName: `${pid}/video/old.mp4` } }], pid, 'video', `${pid}/video/new.mp4`)).toBe(`${pid}/video/old.mp4`);
+    expect(chooseUploadPath([], pid, 'video', `${pid}/video/new.mp4`)).toBe(`${pid}/video/new.mp4`);
+    expect(chooseUploadPath([{ metadata: { objectName: `other/video/x.mp4` } }], pid, 'video', `${pid}/video/new.mp4`)).toBe(`${pid}/video/new.mp4`);
   });
 });

@@ -7,6 +7,7 @@ import { Image, Linking, Text, View } from 'react-native';
 import {
   avatarUrl,
   listMyCertificates,
+  removeCertificate,
   startDigilocker,
   submitApplication,
   uploadAvatar,
@@ -87,7 +88,7 @@ export function Step1({ ctx, next }: Props) {
   return (
     <>
       <Card>
-        <Field label="Display name" hint="How seekers will see you" error={errors.displayName} value={v.displayName} onChangeText={(t) => set({ displayName: t })} testID="display-name" />
+        <Field label="Display name" hint="How seekers will see you" error={errors.displayName} maxLength={60} value={v.displayName} onChangeText={(t) => set({ displayName: t })} testID="display-name" />
         {photo && <Image source={{ uri: photo }} accessibilityLabel="Your profile photo" style={{ width: 72, height: 72, borderRadius: 36 }} />}
         <Button label={photo ? 'Change profile photo' : 'Add profile photo'} variant="secondary" onPress={pickPhoto} testID="pick-photo" />
         {errors.photoPath && <Text style={{ color: color.danger, fontSize: 12 }}>{errors.photoPath}</Text>}
@@ -190,8 +191,8 @@ export function Step3({ ctx, next }: Props) {
         {certs.map((c) => (
           <View key={c.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text>{c.file_name}</Text>
-            <Text accessibilityRole="button" style={{ color: color.primary }}
-              onPress={() => { const n = certs.filter((x) => x.id !== c.id); setCerts(n); ctx.saveDraft(3, data(n)); }}>Remove</Text>
+            <Text accessibilityRole="button" accessibilityLabel={`Remove ${c.file_name}`} style={{ color: color.primary }}
+              onPress={() => removeCertificate(supabase, c.id).then(() => setCerts((x) => x.filter((y) => y.id !== c.id))).catch((e) => setError(messageForError(e)))}>Remove</Text>
           </View>
         ))}
         <Button label={uploading ? 'Uploading…' : 'Add certificates'} variant="secondary" onPress={addCertificates} busy={uploading} disabled={certs.length >= LIMITS.certificatesMax} />
@@ -269,6 +270,7 @@ export function Step5({ ctx, next }: Props) {
   const init = (ctx.app?.snapshot?.step5 ?? {}) as Loose;
   const ip = ((ctx.app?.snapshot?.step2 ?? {}) as Loose).inPerson ?? {};
   const [email, setEmail] = useState<string>(init.email ?? '');
+  const [gstin, setGstin] = useState<string>(init.gstin ?? '');
   const [addr, setAddr] = useState({
     street1: init.residentialAddress?.street1 ?? ip.addressFull ?? '', street2: init.residentialAddress?.street2 ?? '',
     city: init.residentialAddress?.city ?? ip.city ?? '', state: init.residentialAddress?.state ?? '', pincode: init.residentialAddress?.pincode ?? ip.pincode ?? '',
@@ -280,7 +282,9 @@ export function Step5({ ctx, next }: Props) {
   const [kycError, setKycError] = useState<string | null>(params.kyc === 'error' ? 'DigiLocker verification didn’t complete. Please try again.' : null);
   const { errors, error, setError, busy } = useSubmit(ctx, 5, next);
   const row = (k: string) => ctx.checks.find((c) => c.kind === k);
-  const data = (e = email, x = addr) => ({ email: e, residentialAddress: { ...x, street2: x.street2 || undefined } });
+  const data = (e = email, x = addr, g = gstin) => ({
+    email: e, residentialAddress: { ...x, street2: x.street2 || undefined }, gstin: g.trim() ? g.trim().toUpperCase() : undefined,
+  });
   useEffect(() => { if (params.kyc) ctx.refresh(); }, [params.kyc, ctx]);
 
   async function kyc(kind: string, fn: () => Promise<unknown>) {
@@ -318,6 +322,8 @@ export function Step5({ ctx, next }: Props) {
         {af('city', 'City')}
         {af('state', 'State')}
         {af('pincode', 'PIN code', { keyboardType: 'number-pad', maxLength: 6 })}
+        <Field label="GSTIN (optional)" error={errors.gstin} autoCapitalize="characters" maxLength={15} value={gstin}
+          onChangeText={(t) => { setGstin(t); ctx.saveDraft(5, data(email, addr, t)); }} />
       </Card>
       <Card>
         <Muted>We verify these with secure government and bank checks. We never store your full Aadhaar number.</Muted>

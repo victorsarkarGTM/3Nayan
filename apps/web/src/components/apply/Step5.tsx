@@ -55,7 +55,7 @@ export function Step5({ ctx, onContinue }: StepProps) {
   const toData = (e: string, a: Address, g: string) => ({
     email: e,
     residentialAddress: { ...a, street2: a.street2 || undefined },
-    ...(g.trim() ? { gstin: g.trim().toUpperCase() } : {}),
+    gstin: g.trim() ? g.trim().toUpperCase() : undefined,
   });
   const draft = (e: string, a: Address, g: string) => (setErrors({}), ctx.saveDraft(5, toData(e, a, g)));
 

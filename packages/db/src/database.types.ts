@@ -378,6 +378,9 @@ isOneToOne: false
 "owns_practitioner":
 { Args: { "p_id": string }; Returns: boolean
                            },
+"register_device_token":
+{ Args: { "p_platform": string,"p_token": string }; Returns: undefined
+                           },
 "release_kyc_attempt":
 { Args: { "p_at"?: string,"p_check_id": string }; Returns: undefined
                            },
@@ -395,6 +398,9 @@ isOneToOne: false
                            },
 "store_pan":
 { Args: { "p_check_id": string,"p_pan": string }; Returns: undefined
+                           },
+"unregister_device_token":
+{ Args: { "p_token": string }; Returns: undefined
                            },
 "write_audit":
 { Args: { "p_action": string,"p_actor_id": string,"p_actor_kind": string,"p_metadata": Json,"p_target_id": string,"p_target_table": string }; Returns: undefined

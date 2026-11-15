@@ -41,10 +41,23 @@ export default function StaffPage() {
     }
   }
 
-  function invite(e: FormEvent) {
+  async function invite(e: FormEvent) {
     e.preventDefault();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) return setError('Enter a valid email address');
-    return run(() => inviteStaff(supabase(), email.trim(), role), `Invitation sent to ${email.trim()}`).then(() => setEmail(''));
+    const to = email.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) return setError('Enter a valid email address');
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const r = await inviteStaff(supabase(), to, role);
+      setNotice(r.emailSent === 'invite' ? `Invitation sent to ${to}` : `${to} already has an account: we sent them a link to set their password.`);
+      setEmail('');
+    } catch (err) {
+      setError(messageFor(err));
+    } finally {
+      setBusy(false);
+      await load();
+    }
   }
 
   return (

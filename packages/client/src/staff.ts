@@ -92,7 +92,7 @@ export const retryLinkedAccount = (sb: Sb, practitionerId: string) =>
 export const processDeletion = (sb: Sb, requestId: string) =>
   callFunction<{ status: string; noop: boolean }>(sb, 'account-deletion-process', { requestId });
 export const inviteStaff = (sb: Sb, email: string, role: StaffRole) =>
-  callFunction<{ userId: string }>(sb, 'staff-invite', { email, role });
+  callFunction<{ userId: string; emailSent: 'invite' | 'password_link' }>(sb, 'staff-invite', { email, role });
 
 export async function addReviewNote(sb: Sb, practitionerId: string, body: string) {
   const { data: u } = await sb.auth.getUser();

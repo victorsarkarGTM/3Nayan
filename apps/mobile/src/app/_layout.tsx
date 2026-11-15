@@ -2,9 +2,8 @@ import { Stack, router, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { Alert } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { registerPushToken } from '@/lib/push';
+import { registerPushToken, signOut } from '@/lib/push';
 import { SessionProvider, useSession } from '@/lib/session';
-import { supabase } from '@/lib/supabase';
 
 function RouteGuard() {
   const { ready, session, onboarded, isStaff } = useSession();
@@ -18,7 +17,7 @@ function RouteGuard() {
       return;
     }
     if (isStaff) {
-      supabase.auth.signOut();
+      signOut();
       Alert.alert('Staff account', 'Staff accounts sign in through the 3Nayan admin panel, not this app.');
       return;
     }

@@ -65,7 +65,7 @@ export function Step1({ ctx, onContinue }: StepProps) {
     <form onSubmit={submit} noValidate className="flex flex-col gap-5">
       <Card className="flex flex-col gap-5">
         <Field label="Display name" hint="How seekers will see you" error={errors.displayName}>
-          {(id, d) => <TextInput id={id} aria-describedby={d} value={v.displayName} invalid={!!errors.displayName} onChange={(e) => update({ displayName: e.target.value })} />}
+          {(id, d) => <TextInput id={id} aria-describedby={d} maxLength={60} value={v.displayName} invalid={!!errors.displayName} onChange={(e) => update({ displayName: e.target.value })} />}
         </Field>
         <Field label="Profile photo" hint="A clear, friendly photo of your face. JPG or PNG, up to 5 MB." error={errors.photoPath}>
           {(id, d) => (

@@ -65,7 +65,8 @@ export function stepToColumns(step: StepNumber, d: any): Partial<PractitionerRow
         video_mime: d.videoMime,
       };
     case 5:
-      return { email: d.email, residential_address: d.residentialAddress, gstin: d.gstin ?? null };
+      // GSTIN is written only when the screen sends it (another device may not show the field).
+      return { email: d.email, residential_address: d.residentialAddress, ...('gstin' in d ? { gstin: d.gstin ?? null } : {}) };
     case 6:
       return { agreement_version: d.agreementVersion, declaration_accepted: d.declarationAccepted };
   }

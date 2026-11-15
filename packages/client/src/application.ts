@@ -75,6 +75,7 @@ export async function saveStep(sb: Sb, step: StepNumber, data: unknown, opts: { 
   }
   const p = await myPractitioner(sb);
   if (!p) throw new AppError('not_found');
+  if (opts.draft) value = sanitizeDraft(step, value);
   const columns = stepToColumns(step, value);
   if (Object.keys(columns).length) check(await sb.from('practitioners').update(columns).eq('id', p.id));
 
@@ -85,12 +86,8 @@ export async function saveStep(sb: Sb, step: StepNumber, data: unknown, opts: { 
       check(await sb.from('practitioner_categories').insert(ids.map((category_id) => ({ practitioner_id: p.id, category_id }))));
     }
   }
-  if (step === 3 && Array.isArray(value.certificateIds)) {
-    const keep = value.certificateIds as string[];
-    const existing = check(await sb.from('practitioner_documents').select('id').eq('practitioner_id', p.id));
-    const remove = existing.map((d) => d.id).filter((id) => !keep.includes(id));
-    if (remove.length) check(await sb.from('practitioner_documents').delete().in('id', remove));
-  }
+  // Certificates are added by upload and removed only by an explicit removeCertificate(), never by
+  // diffing a screen's (possibly stale or still-loading) list.
   if (step === 6 && value.declarationAccepted === true && typeof value.agreementVersion === 'string') {
     const { data: u } = await sb.auth.getUser();
     check(
@@ -100,6 +97,30 @@ export async function saveStep(sb: Sb, step: StepNumber, data: unknown, opts: { 
       ),
     );
   }
+}
+
+/**
+ * Drafts are unvalidated, but the database still enforces limits; drop values that would be refused
+ * so the rest of the step saves (validation reports them at "Save and continue").
+ */
+function sanitizeDraft(step: StepNumber, v: Record<string, unknown>): Record<string, unknown> {
+  const out = { ...v };
+  if (step === 1) {
+    if (typeof out.displayName === 'string') out.displayName = out.displayName.slice(0, 60);
+    const y = out.yearsExperience;
+    if (y !== undefined && !(Number.isInteger(y) && (y as number) >= 0 && (y as number) <= 60)) delete out.yearsExperience;
+    if (typeof out.bio === 'string') out.bio = out.bio.slice(0, 1500);
+  }
+  if (step === 3) {
+    if (Array.isArray(out.links)) out.links = (out.links as unknown[]).filter((l) => typeof l === 'string' && /^https?:\/\/\S+$/i.test(l)).slice(0, 5);
+    if (typeof out.credentialsText === 'string') out.credentialsText = out.credentialsText.slice(0, 2000);
+  }
+  return out;
+}
+
+/** Remove one uploaded certificate (explicit user action). */
+export async function removeCertificate(sb: Sb, documentId: string): Promise<void> {
+  check(await sb.from('practitioner_documents').delete().eq('id', documentId));
 }
 
 export async function getMyVerificationChecks(sb: Sb) {

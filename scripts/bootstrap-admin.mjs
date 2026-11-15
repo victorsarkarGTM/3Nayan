@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Create (or confirm) the first super-admin. Idempotent.
-//   SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… node scripts/bootstrap-admin.mjs --email founder@example.com
+//   SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… ADMIN_URL=https://admin.example.com \
+//     node scripts/bootstrap-admin.mjs --email founder@example.com [--send-password-link]
 // They receive an invitation email to set a password, then enrol two-factor sign-in at first login.
 import { createClient } from '@supabase/supabase-js';
 
@@ -27,12 +28,17 @@ async function findUser() {
   return null;
 }
 
+const redirectTo = process.env.ADMIN_URL ? `${process.env.ADMIN_URL.replace(/\/$/, '')}/auth/accept` : undefined;
 let user = await findUser();
 if (!user) {
-  const { data, error } = await db.auth.admin.inviteUserByEmail(email);
+  const { data, error } = await db.auth.admin.inviteUserByEmail(email, redirectTo ? { redirectTo } : undefined);
   if (error) throw error;
   user = data.user;
-  console.log(`Invited ${email}.`);
+  console.log(`Invited ${email}: they set a password from the email link.`);
+} else if (process.argv.includes('--send-password-link')) {
+  const { error } = await db.auth.resetPasswordForEmail(email, redirectTo ? { redirectTo } : undefined);
+  if (error) throw error;
+  console.log(`Sent a password link to ${email}.`);
 }
 const { error } = await db.from('staff').upsert({ user_id: user.id, email, role: 'super_admin', active: true });
 if (error) throw error;

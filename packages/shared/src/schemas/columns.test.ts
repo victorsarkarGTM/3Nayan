@@ -37,3 +37,10 @@ describe('column mapping', () => {
     expect(stepToColumns(3, steps[3])).not.toHaveProperty('certificateIds');
   });
 });
+
+describe('step 5 GSTIN', () => {
+  it('a payload without a gstin key leaves the column untouched', () =>
+    expect(stepToColumns(5, { email: 'a@b.co', residentialAddress: {} })).not.toHaveProperty('gstin'));
+  it('an explicitly cleared gstin writes null', () =>
+    expect(stepToColumns(5, { email: 'a@b.co', residentialAddress: {}, gstin: undefined })).toMatchObject({ gstin: null }));
+});

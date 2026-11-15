@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import { listMyCertificates, uploadPractitionerFile } from '@3nayan/client';
+import { listMyCertificates, removeCertificate, uploadPractitionerFile } from '@3nayan/client';
 import { LIMITS } from '@3nayan/shared';
 import { Button, Card, Field, TextArea, TextInput } from '@/components/ui';
 import { fieldErrors, messageFor } from '@/lib/errors';
@@ -36,24 +36,27 @@ export function Step3({ ctx, onContinue }: StepProps) {
     if (!files) return;
     setUploading(true);
     setErrors({});
-    const added: Cert[] = [];
+    let count = certs.length;
     for (const f of Array.from(files)) {
-      if (certs.length + added.length >= LIMITS.certificatesMax) break;
+      if (count >= LIMITS.certificatesMax) break;
       try {
         const { documentId } = await uploadPractitionerFile(supabase(), practitionerId, 'certificate', f, { fileName: f.name });
-        added.push({ id: documentId!, file_name: f.name });
+        count++;
+        setCerts((c) => [...c, { id: documentId!, file_name: f.name }]);
       } catch (e) {
         setErrors({ certificates: `${f.name}: ${messageFor(e)}` });
       }
     }
-    setCerts((c) => [...c, ...added]);
     setUploading(false);
   }
 
-  function remove(id: string) {
-    const next = certs.filter((c) => c.id !== id);
-    setCerts(next);
-    ctx.saveDraft(3, toData(next, text, links));
+  async function remove(id: string) {
+    try {
+      await removeCertificate(supabase(), id);
+      setCerts((c) => c.filter((x) => x.id !== id));
+    } catch (e) {
+      setErrors({ certificates: messageFor(e) });
+    }
   }
 
   async function submit(e: FormEvent) {

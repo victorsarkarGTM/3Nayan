@@ -44,6 +44,7 @@ type QueryResult<T> = { data: T; error: { message: string; code?: string } | nul
 
 function raise(error: { message: string; code?: string }): never {
   if (error.code === '42501') throw new AppError('forbidden');
+  if (error.code === '23514') throw new AppError('validation_failed', [{ path: [], message: error.message }]);
   throw new AppError('internal', error.message);
 }
 

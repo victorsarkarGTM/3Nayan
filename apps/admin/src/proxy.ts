@@ -14,7 +14,8 @@ export async function proxy(request: NextRequest) {
       },
     },
   });
-  if (request.nextUrl.pathname === '/login') return response;
+  const path = request.nextUrl.pathname;
+  if (path === '/login' || path.startsWith('/auth/')) return response;
   const redirect = () => {
     const r = NextResponse.redirect(new URL('/login', request.url));
     response.cookies.getAll().forEach((c) => r.cookies.set(c));

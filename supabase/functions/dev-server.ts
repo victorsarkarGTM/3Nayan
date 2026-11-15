@@ -44,6 +44,7 @@ if (!process.env.SUPABASE_URL) {
 }
 process.env.PROVIDERS ??= 'fake';
 process.env.APP_URL ??= 'http://localhost:3000';
+process.env.ADMIN_URL ??= 'http://localhost:3001';
 process.env.SUPABASE_FUNCTIONS_URL ??= `http://127.0.0.1:${PORT}/functions/v1`;
 process.env.SEND_SMS_HOOK_SECRET ??= 'v1,whsec_M25heWFuLWxvY2FsLWRldi1ob29rLXNlY3JldC0wMDE=';
 

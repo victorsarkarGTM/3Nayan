@@ -31,6 +31,8 @@ jobs:
         run: node --test scripts/check-runbook.test.mjs
       - run: pnpm lint
       - run: pnpm typecheck
+      - name: Start local Supabase (function and client tests need it)
+        run: pnpm db:start
       - run: pnpm test
       - name: Mobile app bundles (iOS + Android JavaScript)
         run: pnpm --filter @3nayan/mobile bundle
@@ -38,8 +40,6 @@ jobs:
           EXPO_PUBLIC_SUPABASE_URL: http://localhost:54321
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
           CI: '1'
-      - name: Start local Supabase
-        run: pnpm db:start
       - name: Database tests (pgTAP)
         run: pnpm db:test
       - name: Edge Function tests

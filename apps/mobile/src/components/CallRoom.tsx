@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/ui';
+import { ensureCallPermissions } from '@/lib/permissions';
 import { color } from '@/theme';
 
 /**
@@ -22,6 +23,10 @@ export function CallRoom({ token, userName, onLeave }: { token: string; userName
     let cancelled = false;
     (async () => {
       try {
+        if (!(await ensureCallPermissions())) {
+          setError('3Nayan needs camera and microphone access for the call. Allow them in Settings, then join again.');
+          return;
+        }
         hms.current = require('@100mslive/react-native-hms');
         const { HMSSDK, HMSConfig, HMSUpdateListenerActions, HMSTrackUpdate } = hms.current;
         const instance = await HMSSDK.build();

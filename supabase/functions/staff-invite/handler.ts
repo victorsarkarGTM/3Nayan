@@ -20,15 +20,23 @@ export async function staffInvite(req: Request, deps: Deps) {
   requireStaff(caller, ['super_admin']);
   const { email: raw, role } = await parseBody(req, staffInviteSchema);
   const email = raw.toLowerCase();
+  // Invite and password links land on the admin "set your password" page.
+  const redirectTo = deps.env('ADMIN_URL') ? `${deps.env('ADMIN_URL')}/auth/accept` : undefined;
   let user = await findUserByEmail(deps, email);
+  let emailSent: 'invite' | 'password_link';
   if (!user) {
-    const redirectTo = deps.env('ADMIN_URL') ? `${deps.env('ADMIN_URL')}/login` : undefined;
     const { data, error } = await deps.db.auth.admin.inviteUserByEmail(email, redirectTo ? { redirectTo } : undefined);
     if (error) throw new Error(error.message);
     user = data.user;
+    emailSent = 'invite';
+  } else {
+    // Existing account (e.g. an expired invite or a returning staff member): send a password link.
+    const { error } = await deps.db.auth.resetPasswordForEmail(email, redirectTo ? { redirectTo } : undefined);
+    if (error) throw new Error(error.message);
+    emailSent = 'password_link';
   }
   const { error } = await deps.db.from('staff').upsert({ user_id: user.id, email, role, active: true });
   if (error) throw new Error(error.message);
   await audit(deps, { actorId: caller.userId, actorKind: 'staff', action: 'staff.invite', targetTable: 'staff', targetId: user.id, metadata: { email, role } });
-  return { userId: user.id };
+  return { userId: user.id, emailSent };
 }

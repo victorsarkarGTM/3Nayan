@@ -43,6 +43,20 @@ export function avatarUrl(sb: Sb, path: string | null | undefined): string | nul
 }
 
 /**
+ * A resumed TUS upload continues the object it was started with, so the stored path must be that
+ * earlier object name (if it belongs to this practitioner and kind), not a freshly generated one.
+ */
+export function chooseUploadPath(
+  previous: Array<{ metadata?: Record<string, string> }>,
+  practitionerId: string,
+  kind: 'certificate' | 'video',
+  fresh: string,
+): string {
+  const earlier = previous[0]?.metadata?.objectName;
+  return earlier && earlier.startsWith(`${practitionerId}/${kind}/`) ? earlier : fresh;
+}
+
+/**
  * Upload a certificate (standard upload + document row) or intro video (resumable TUS upload,
  * 6 MB chunks) to the private bucket. Validates type and size before any network call.
  */
@@ -54,7 +68,7 @@ export async function uploadPractitionerFile(
   opts: UploadOptions & { fileName?: string; onProgress?: (pct: number) => void } = {},
 ): Promise<{ path: string; documentId?: string }> {
   assertFile(kind, file);
-  const path = `${practitionerId}/${kind}/${crypto.randomUUID()}.${EXT[file.type]}`;
+  let path = `${practitionerId}/${kind}/${crypto.randomUUID()}.${EXT[file.type]}`;
   if (kind === 'certificate') {
     check(await sb.storage.from('practitioner-private').upload(path, opts.body ?? file, { contentType: file.type }));
     const doc = check(
@@ -91,7 +105,12 @@ export async function uploadPractitionerFile(
       onSuccess: () => resolve(),
     });
     upload.findPreviousUploads().then((previous) => {
-      if (previous[0]) upload.resumeFromPreviousUpload(previous[0]);
+      const resumable = previous.filter((u) => chooseUploadPath([u], practitionerId, kind, '') !== '');
+      if (resumable[0]) {
+        path = chooseUploadPath(resumable, practitionerId, kind, path);
+        upload.options.metadata = { ...upload.options.metadata, objectName: path };
+        upload.resumeFromPreviousUpload(resumable[0]);
+      }
       upload.start();
     });
   });

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from 'react';
 import { getSettings, updateSettings } from '@3nayan/client';
+import { percentToBps } from '@3nayan/shared';
 import { Alert, Button, Card, Field, TextInput } from '@/components/ui';
 import { messageFor } from '@/lib/errors';
 import { supabase } from '@/lib/supabase';
@@ -29,11 +30,10 @@ export default function SettingsPage() {
 
   async function saveCommission(e: FormEvent) {
     e.preventDefault();
-    const n = Number(percent);
-    if (!Number.isFinite(n) || n < 0 || n > 50 || Math.round(n * 100) !== n * 100)
-      return setCommissionMsg({ tone: 'danger', text: 'Enter a commission between 0% and 50% (up to two decimals)' });
+    const bps = percentToBps(percent);
+    if (bps === null) return setCommissionMsg({ tone: 'danger', text: 'Enter a commission between 0% and 50% (up to two decimals)' });
     try {
-      await updateSettings(supabase(), 'commission_rate', { bps: Math.round(n * 100) });
+      await updateSettings(supabase(), 'commission_rate', { bps });
       setCommissionMsg({ tone: 'success', text: 'Commission saved' });
     } catch (err) {
       setCommissionMsg({ tone: 'danger', text: messageFor(err) });

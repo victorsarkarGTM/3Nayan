@@ -32,7 +32,7 @@ Repository → Settings → Secrets and variables → Actions:
 | `VERCEL_WEB_PROJECT_ID` | Project ID of `3nayan-web` |
 | `VERCEL_ADMIN_PROJECT_ID` | Project ID of `3nayan-admin` |
 
-The workflow runs on every push to `main`: database migrations, Edge Functions, then both Vercel deploys. It skips cleanly until these secrets exist.
+The workflow runs after CI passes on `main` (or manually): database migrations, Edge Functions, then both Vercel deploys. It skips cleanly until these secrets exist.
 
 ## 3. Supabase staging project
 
@@ -114,10 +114,10 @@ Build: `npx eas-cli@latest build --profile staging --platform all`.
 
 ```bash
 SUPABASE_URL=https://<project-ref>.supabase.co SUPABASE_SERVICE_ROLE_KEY=<service-role-key> \
-  node scripts/bootstrap-admin.mjs --email founder@example.com
+  ADMIN_URL=https://admin-staging.3nayan.in node scripts/bootstrap-admin.mjs --email founder@example.com
 ```
 
-They get an invitation email, set a password, then enrol two-factor sign-in on first admin login. Invite other staff from **Admin → Staff**.
+They get an invitation email that opens the admin “Choose your password” page, then enrol two-factor sign-in on first login. If the link expires, rerun with `--send-password-link` (or use “Forgot password?”). Add `<admin URL>/auth/accept` to Auth → URL configuration → Redirect URLs. Invite other staff from **Admin → Staff**.
 
 ## 10. Smoke checklist (spec §1.1)
 
