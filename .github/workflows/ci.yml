@@ -27,6 +27,8 @@ jobs:
         run: DENO=deno pnpm functions:check
       - name: Design tokens are up to date
         run: node packages/ui-tokens/generate.mjs apps/web/src/app/globals.css apps/admin/src/app/globals.css --check
+      - name: Runbook documents every environment variable
+        run: node --test scripts/check-runbook.test.mjs
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test

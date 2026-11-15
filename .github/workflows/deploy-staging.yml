@@ -1,0 +1,60 @@
+name: Deploy staging
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency: deploy-staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+      PROJECT_REF: ${{ secrets.STAGING_PROJECT_REF }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+    steps:
+      - name: Check deploy secrets are configured
+        id: ready
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ] || [ -z "$PROJECT_REF" ] || [ -z "$VERCEL_TOKEN" ]; then
+            echo "Staging secrets not configured yet (see docs/runbooks/staging.md). Skipping deploy."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.ready.outputs.ok == 'true'
+      - uses: pnpm/action-setup@v4
+        if: steps.ready.outputs.ok == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.ready.outputs.ok == 'true'
+        with:
+          node-version: 22
+          cache: pnpm
+      - if: steps.ready.outputs.ok == 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Shared code copied into Edge Functions is up to date
+        if: steps.ready.outputs.ok == 'true'
+        run: node scripts/sync-shared.mjs --check
+      - name: Database migrations
+        if: steps.ready.outputs.ok == 'true'
+        run: |
+          pnpm --filter @3nayan/db exec supabase --workdir ../.. link --project-ref "$PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+          pnpm --filter @3nayan/db exec supabase --workdir ../.. db push --password "$SUPABASE_DB_PASSWORD"
+      - name: Edge Functions
+        if: steps.ready.outputs.ok == 'true'
+        run: pnpm --filter @3nayan/db exec supabase --workdir ../.. functions deploy --project-ref "$PROJECT_REF"
+      - name: Web app (Vercel)
+        if: steps.ready.outputs.ok == 'true'
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WEB_PROJECT_ID }}
+        run: npx --yes vercel@latest deploy --prod --yes --token "$VERCEL_TOKEN"
+      - name: Admin panel (Vercel)
+        if: steps.ready.outputs.ok == 'true'
+        env:
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_ADMIN_PROJECT_ID }}
+        run: npx --yes vercel@latest deploy --prod --yes --token "$VERCEL_TOKEN"
