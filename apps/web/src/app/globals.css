@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "../../../../packages/web-ui/src";
 /* tokens:start — GENERATED from packages/ui-tokens/tokens.json; run `pnpm tokens` */
 @theme {
   --color-primary: #5B4FCF;

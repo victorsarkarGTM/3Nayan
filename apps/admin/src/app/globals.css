@@ -1,0 +1,45 @@
+@import "tailwindcss";
+@source "../../../../packages/web-ui/src";
+/* tokens:start — GENERATED from packages/ui-tokens/tokens.json; run `pnpm tokens` */
+@theme {
+  --color-primary: #5B4FCF;
+  --color-primary-hover: #4A3FB8;
+  --color-primary-soft: #EEEBFB;
+  --color-accent: #D98E2B;
+  --color-ink: #1F1B2E;
+  --color-muted: #6B6780;
+  --color-line: #E4E1EC;
+  --color-surface: #FFFFFF;
+  --color-canvas: #F8F7FB;
+  --color-success: #1F8A5B;
+  --color-success-soft: #E6F4EC;
+  --color-warning: #B7791F;
+  --color-warning-soft: #FBF1E1;
+  --color-danger: #C2410C;
+  --color-danger-soft: #FCEDE6;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+/* tokens:end */
+
+html {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+body {
+  font-family: var(--font-sans);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

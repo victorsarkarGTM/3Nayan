@@ -11,6 +11,9 @@ importers:
       '@eslint/js':
         specifier: ^9.17.0
         version: 9.39.5
+      '@supabase/supabase-js':
+        specifier: ^2.47.0
+        version: 2.119.0
       '@types/node':
         specifier: ^22.20.5
         version: 22.20.5
@@ -33,6 +36,70 @@ importers:
         specifier: ^8.18.2
         version: 8.72.2(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
 
+  apps/admin:
+    dependencies:
+      '@3nayan/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@3nayan/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@3nayan/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@3nayan/ui-tokens':
+        specifier: workspace:*
+        version: link:../../packages/ui-tokens
+      '@3nayan/web-ui':
+        specifier: workspace:*
+        version: link:../../packages/web-ui
+      '@supabase/ssr':
+        specifier: ^0.12.7
+        version: 0.12.7(@supabase/supabase-js@2.119.0)
+      '@supabase/supabase-js':
+        specifier: ^2.47.0
+        version: 2.119.0
+      next:
+        specifier: 16.4.6
+        version: 16.4.6(@babel/core@7.29.13)(@playwright/test@1.63.0)(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+      react-dom:
+        specifier: 19.3.0
+        version: 19.3.0(react@19.3.0)
+    devDependencies:
+      '@playwright/test':
+        specifier: 1.63.0
+        version: 1.63.0
+      '@tailwindcss/turbopack':
+        specifier: 4.3.3
+        version: 4.3.3
+      '@types/node':
+        specifier: ^22
+        version: 22.20.5
+      '@types/react':
+        specifier: ^19
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.3.0(@types/react@19.3.0)
+      eslint:
+        specifier: ^9
+        version: 9.39.5(jiti@2.7.0)
+      eslint-config-next:
+        specifier: 16.4.6
+        version: 16.4.6(@typescript-eslint/parser@8.72.2(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.5(jiti@2.7.0))(typescript@5.9.3)
+      otpauth:
+        specifier: ^9.3.6
+        version: 9.6.0
+      tailwindcss:
+        specifier: 4.3.3
+        version: 4.3.3
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
   apps/web:
     dependencies:
       '@100mslive/roomkit-react':
@@ -50,6 +117,9 @@ importers:
       '@3nayan/ui-tokens':
         specifier: workspace:*
         version: link:../../packages/ui-tokens
+      '@3nayan/web-ui':
+        specifier: workspace:*
+        version: link:../../packages/web-ui
       '@supabase/ssr':
         specifier: ^0.12.7
         version: 0.12.7(@supabase/supabase-js@2.119.0)
@@ -133,6 +203,22 @@ importers:
         version: 3.2.7(@types/node@22.20.5)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.15)
 
   packages/ui-tokens: {}
+
+  packages/web-ui:
+    dependencies:
+      '@3nayan/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@types/react':
+        specifier: ^19
+        version: 19.3.0
+      next:
+        specifier: 16.4.6
+        version: 16.4.6(@babel/core@7.29.13)(@playwright/test@1.63.0)(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
 
   supabase/functions:
     dependencies:

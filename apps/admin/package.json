@@ -1,0 +1,38 @@
+{
+  "name": "@3nayan/admin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "e2e": "playwright test --trace off"
+  },
+  "dependencies": {
+    "@3nayan/client": "workspace:*",
+    "@3nayan/db": "workspace:*",
+    "@3nayan/shared": "workspace:*",
+    "@3nayan/ui-tokens": "workspace:*",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.47.0",
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "@3nayan/web-ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@tailwindcss/turbopack": "4.3.3",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "tailwindcss": "4.3.3",
+    "typescript": "^5",
+    "otpauth": "^9.3.6"
+  }
+}

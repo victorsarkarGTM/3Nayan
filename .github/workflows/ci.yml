@@ -26,7 +26,7 @@ jobs:
         if: hashFiles('supabase/functions/deno.json') != ''
         run: DENO=deno pnpm functions:check
       - name: Design tokens are up to date
-        run: node packages/ui-tokens/generate.mjs apps/web/src/app/globals.css --check
+        run: node packages/ui-tokens/generate.mjs apps/web/src/app/globals.css apps/admin/src/app/globals.css --check
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
