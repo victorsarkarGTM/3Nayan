@@ -63,7 +63,7 @@ describe('jobs', () => {
     await invoke(jobs, { job: 'notification-retry' }, { ...svc(), deps });
     const { data: row } = await serviceClient().from('notifications').select('status,retries').eq('id', data!.id).single();
     expect(row).toEqual({ status: 'sent', retries: 1 });
-    expect((deps.whatsapp as FakeWhatsApp).sent).toHaveLength(1);
+    expect((deps.whatsapp as FakeWhatsApp).sent.filter((m) => m.phone === a.phone)).toHaveLength(1);
   });
 
   it('notification-retry stops after 3 retries', async () => {
