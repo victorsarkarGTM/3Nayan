@@ -1,7 +1,10 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { FakeSms } from './providers/msg91/fake.ts';
-import { Msg91Sms } from './providers/msg91/real.ts';
-import type { SmsProvider } from './providers/msg91/types.ts';
+import { FakeSms, FakeWhatsApp } from './providers/msg91/fake.ts';
+import { Msg91Sms, Msg91WhatsApp } from './providers/msg91/real.ts';
+import type { SmsProvider, WhatsAppProvider } from './providers/msg91/types.ts';
+import { FakePush } from './providers/push/fake.ts';
+import { ExpoPush } from './providers/push/real.ts';
+import type { PushProvider } from './providers/push/types.ts';
 
 export type Env = (key: string) => string | undefined;
 
@@ -11,6 +14,8 @@ export type Deps = {
   now: () => Date;
   env: Env;
   sms: SmsProvider;
+  whatsapp: WhatsAppProvider;
+  push: PushProvider;
 };
 
 export function serviceClientFrom(env: Env): SupabaseClient {
@@ -27,5 +32,7 @@ export function makeDeps(env: Env): Deps {
     now: () => new Date(),
     env,
     sms: real ? new Msg91Sms(env) : new FakeSms(),
+    whatsapp: real ? new Msg91WhatsApp(env) : new FakeWhatsApp(),
+    push: real ? new ExpoPush(env) : new FakePush(),
   };
 }

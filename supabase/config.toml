@@ -428,3 +428,7 @@ secrets = "v1,whsec_M25heWFuLWxvY2FsLWRldi1ob29rLXNlY3JldC0wMDE="
 [functions.auth-send-sms]
 verify_jwt = false
 import_map = "./functions/deno.json"
+
+[functions.notify]
+verify_jwt = false
+import_map = "./functions/deno.json"
