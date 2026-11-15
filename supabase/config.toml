@@ -485,3 +485,7 @@ import_map = "./functions/deno.json"
 
 [functions.account-deletion-process]
 import_map = "./functions/deno.json"
+
+[functions.jobs]
+verify_jwt = false
+import_map = "./functions/deno.json"

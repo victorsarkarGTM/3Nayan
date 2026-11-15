@@ -129,14 +129,28 @@ isOneToOne: false
                   ]
                 },"notifications": {
                   Row: {
-                    "channel": string,"created_at": string,"data": NonNullable<Json>,"error": string | null,"id": string,"provider_ref": string | null,"status": string,"template_key": string,"updated_at": string,"user_id": string
+                    "channel": string,"created_at": string,"data": NonNullable<Json>,"error": string | null,"id": string,"provider_ref": string | null,"retries": number,"status": string,"template_key": string,"updated_at": string,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "channel": string,"created_at"?: string,"data"?: NonNullable<Json>,"error"?: string | null,"id"?: string,"provider_ref"?: string | null,"status": string,"template_key": string,"updated_at"?: string,"user_id": string
+                    "channel": string,"created_at"?: string,"data"?: NonNullable<Json>,"error"?: string | null,"id"?: string,"provider_ref"?: string | null,"retries"?: number,"status": string,"template_key": string,"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "channel"?: string,"created_at"?: string,"data"?: NonNullable<Json>,"error"?: string | null,"id"?: string,"provider_ref"?: string | null,"status"?: string,"template_key"?: string,"updated_at"?: string,"user_id"?: string
+                    "channel"?: string,"created_at"?: string,"data"?: NonNullable<Json>,"error"?: string | null,"id"?: string,"provider_ref"?: string | null,"retries"?: number,"status"?: string,"template_key"?: string,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"otp_sends": {
+                  Row: {
+                    "created_at": string,"id": number,"phone": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: never,"phone": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: never,"phone"?: string
                   }
                   Relationships: [
                     
@@ -305,14 +319,14 @@ isOneToOne: false
                   ]
                 },"verification_checks": {
                   Row: {
-                    "attempt_times": (string)[],"attempts": number,"bank_account_encrypted": string | null,"checked_at": string | null,"created_at": string,"id": string,"ifsc": string | null,"kind": string,"last_error": string | null,"masked_ref": string | null,"name_match_score": number | null,"practitioner_id": string,"provider_ref": string | null,"status": string,"updated_at": string,"verified_name": string | null,"year_of_birth": number | null
+                    "attempt_times": (string)[],"attempts": number,"bank_account_encrypted": string | null,"checked_at": string | null,"created_at": string,"id": string,"ifsc": string | null,"kind": string,"last_error": string | null,"masked_ref": string | null,"name_match_score": number | null,"pan_encrypted": string | null,"practitioner_id": string,"provider_ref": string | null,"status": string,"updated_at": string,"verified_name": string | null,"year_of_birth": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "attempt_times"?: (string)[],"attempts"?: number,"bank_account_encrypted"?: string | null,"checked_at"?: string | null,"created_at"?: string,"id"?: string,"ifsc"?: string | null,"kind": string,"last_error"?: string | null,"masked_ref"?: string | null,"name_match_score"?: number | null,"practitioner_id": string,"provider_ref"?: string | null,"status"?: string,"updated_at"?: string,"verified_name"?: string | null,"year_of_birth"?: number | null
+                    "attempt_times"?: (string)[],"attempts"?: number,"bank_account_encrypted"?: string | null,"checked_at"?: string | null,"created_at"?: string,"id"?: string,"ifsc"?: string | null,"kind": string,"last_error"?: string | null,"masked_ref"?: string | null,"name_match_score"?: number | null,"pan_encrypted"?: string | null,"practitioner_id": string,"provider_ref"?: string | null,"status"?: string,"updated_at"?: string,"verified_name"?: string | null,"year_of_birth"?: number | null
                   }
                   Update: {
-                    "attempt_times"?: (string)[],"attempts"?: number,"bank_account_encrypted"?: string | null,"checked_at"?: string | null,"created_at"?: string,"id"?: string,"ifsc"?: string | null,"kind"?: string,"last_error"?: string | null,"masked_ref"?: string | null,"name_match_score"?: number | null,"practitioner_id"?: string,"provider_ref"?: string | null,"status"?: string,"updated_at"?: string,"verified_name"?: string | null,"year_of_birth"?: number | null
+                    "attempt_times"?: (string)[],"attempts"?: number,"bank_account_encrypted"?: string | null,"checked_at"?: string | null,"created_at"?: string,"id"?: string,"ifsc"?: string | null,"kind"?: string,"last_error"?: string | null,"masked_ref"?: string | null,"name_match_score"?: number | null,"pan_encrypted"?: string | null,"practitioner_id"?: string,"provider_ref"?: string | null,"status"?: string,"updated_at"?: string,"verified_name"?: string | null,"year_of_birth"?: number | null
                   }
                   Relationships: [
                     {
@@ -343,6 +357,9 @@ isOneToOne: false
 "can_write_practitioner_object":
 { Args: { "p_name": string }; Returns: boolean
                            },
+"invoke_job":
+{ Args: { "p_job": string }; Returns: undefined
+                           },
 "is_staff":
 { Args: { "roles"?: (Database["public"]['Enums']["staff_role"])[] }; Returns: boolean
                            },
@@ -355,8 +372,14 @@ isOneToOne: false
 "reveal_bank_account":
 { Args: { "p_check_id": string }; Returns: string
                            },
+"reveal_pan":
+{ Args: { "p_check_id": string }; Returns: string
+                           },
 "store_bank_account":
 { Args: { "p_account": string,"p_check_id": string,"p_ifsc": string }; Returns: undefined
+                           },
+"store_pan":
+{ Args: { "p_check_id": string,"p_pan": string }; Returns: undefined
                            },
 "write_audit":
 { Args: { "p_action": string,"p_actor_id": string,"p_actor_kind": string,"p_metadata": Json,"p_target_id": string,"p_target_table": string }; Returns: undefined
