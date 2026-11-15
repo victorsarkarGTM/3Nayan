@@ -25,6 +25,7 @@ import { practitionerReapply } from './practitioner-reapply/handler.ts';
 import { practitionerSubmit } from './practitioner-submit/handler.ts';
 import { razorpayLinkedAccountRetry } from './razorpay-linked-account-retry/handler.ts';
 import { staffDocumentUrl } from './staff-document-url/handler.ts';
+import { staffInvite } from './staff-invite/handler.ts';
 import { trialJoinToken } from './trial-join-token/handler.ts';
 import { trialOutcome } from './trial-outcome/handler.ts';
 import { trialPropose } from './trial-propose/handler.ts';
@@ -61,6 +62,7 @@ const wrapped: Record<string, Handler> = {
   'practitioner-submit': practitionerSubmit,
   'razorpay-linked-account-retry': razorpayLinkedAccountRetry,
   'staff-document-url': staffDocumentUrl,
+  'staff-invite': staffInvite,
   'trial-join-token': trialJoinToken,
   'trial-outcome': trialOutcome,
   'trial-propose': trialPropose,

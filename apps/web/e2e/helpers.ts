@@ -6,7 +6,7 @@ const env = localEnv();
 export const admin = () => createClient(env.url, env.service, { auth: { persistSession: false } });
 
 /** Test numbers configured in supabase/config.toml ([auth.sms.test_otp]); OTP is always 123456. */
-export const TEST_PHONES = Array.from({ length: 9 }, (_, i) => `91999990000${i + 1}`);
+export const TEST_PHONES = Array.from({ length: 12 }, (_, i) => `919999900${String(i + 1).padStart(3, '0')}`);
 
 export async function deleteUserByPhone(phone: string) {
   const db = admin();

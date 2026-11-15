@@ -121,7 +121,8 @@ export async function searchPractitioners(sb: Sb, q: string) {
     .limit(50);
   if (term) {
     const digits = term.replace(/\D/g, '');
-    if (digits.length >= 4) {
+    // Only phone-like input searches phone numbers ("Applicant 4f8a91" is a name search).
+    if (/^[+\d\s()-]+$/.test(term) && digits.length >= 4) {
       const profiles = check(await sb.from('profiles').select('id').ilike('phone', `%${digits.slice(-10)}%`).limit(50));
       query = query.in('user_id', profiles.map((p) => p.id));
     } else {

@@ -4,6 +4,7 @@ import {
   callFunction,
   getMyApplication,
   listApplications,
+  searchPractitioners,
   listCategories,
   saveStep,
   startApplication,
@@ -82,5 +83,16 @@ describe('@3nayan/client', () => {
     const ids = (await listApplications(sb, { status: 'submitted', flaggedOnly: true })).map((a) => a.id);
     expect(ids).toContain(flagged);
     expect(ids).not.toContain(clean);
+  });
+});
+
+describe('searchPractitioners', () => {
+  it('treats names containing digits as a name search, not a phone search', async () => {
+    const { userId } = await signedInUser();
+    const name = `Applicant 4${Date.now().toString().slice(-5)}x`;
+    await admin().from('practitioners').insert({ user_id: userId, display_name: name, status: 'submitted' });
+    const { sb } = await signedInStaff('support');
+    const rows = await searchPractitioners(sb, name);
+    expect(rows.map((r) => r.display_name)).toContain(name);
   });
 });

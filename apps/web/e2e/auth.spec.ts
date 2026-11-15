@@ -51,3 +51,19 @@ test('staff account login on web → error message', async ({ page }) => {
   await expect(page).toHaveURL(/\/login\?error=staff/);
   await expect(page.getByText('Staff accounts sign in through the 3Nayan admin panel')).toBeVisible();
 });
+
+test('bumping the Terms version sends a signed-in user back to accept it', async ({ page }) => {
+  await loginWithPhone(page, '9999900010');
+  await completeOnboarding(page, 'Divya');
+  await expect(page).toHaveURL(/\/home/);
+  const db = admin();
+  const { data } = await db.from('platform_settings').select('value').eq('key', 'legal_versions').single();
+  const v = data!.value as Record<string, string>;
+  await db.from('platform_settings').update({ value: { ...v, terms: 'draft-9' } }).eq('key', 'legal_versions');
+  try {
+    await page.goto('/home');
+    await expect(page).toHaveURL(/\/onboarding/);
+  } finally {
+    await db.from('platform_settings').update({ value: v }).eq('key', 'legal_versions');
+  }
+});
