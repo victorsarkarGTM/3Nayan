@@ -445,3 +445,12 @@ import_map = "./functions/deno.json"
 [functions.kyc-digilocker-callback]
 verify_jwt = false
 import_map = "./functions/deno.json"
+
+[functions.practitioner-submit]
+import_map = "./functions/deno.json"
+
+[functions.practitioner-reapply]
+import_map = "./functions/deno.json"
+
+[functions.admin-transition]
+import_map = "./functions/deno.json"

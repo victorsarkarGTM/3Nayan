@@ -104,3 +104,47 @@ export async function setPractitionerStatus(practitionerId: string, status: stri
   const { error } = await serviceClient().from('practitioners').update({ status }).eq('id', practitionerId);
   if (error) throw error;
 }
+
+/** Fill every application step (as the apps would) with valid data and fake-passed KYC. */
+export async function fillApplication(practitionerId: string, userId: string) {
+  const db = serviceClient();
+  const { data: cat } = await db.from('categories').select('id').not('parent_id', 'is', null).limit(1).single();
+  await db.from('practitioner_categories').upsert({ practitioner_id: practitionerId, category_id: cat!.id });
+  const { error } = await db
+    .from('practitioners')
+    .update({
+      display_name: 'Rahul Sharma',
+      photo_path: `${userId}/avatar.png`,
+      bio: 'Reiki practitioner helping people find calm and clarity. '.repeat(3),
+      years_experience: 6,
+      languages: ['English', 'Hindi'],
+      offers_online: true,
+      offers_in_person: false,
+      links: [],
+      video_path: `${practitionerId}/video/intro.mp4`,
+      video_duration_seconds: 45,
+      video_bytes: 1_000_000,
+      video_mime: 'video/mp4',
+      email: 'rahul@example.com',
+      residential_address: { street1: '12 MG Road', city: 'Pune', state: 'Maharashtra', pincode: '411001' },
+      agreement_version: 'draft-1',
+      declaration_accepted: true,
+    })
+    .eq('id', practitionerId);
+  if (error) throw error;
+  const { error: e2 } = await db.from('verification_checks').upsert(
+    ['pan', 'aadhaar', 'bank'].map((kind) => ({
+      practitioner_id: practitionerId,
+      kind,
+      status: 'passed',
+      verified_name: 'RAHUL SHARMA',
+    })),
+    { onConflict: 'practitioner_id,kind' },
+  );
+  if (e2) throw e2;
+}
+
+export async function notificationKeys(userId: string): Promise<string[]> {
+  const { data } = await serviceClient().from('notifications').select('template_key').eq('user_id', userId);
+  return [...new Set((data ?? []).map((r: { template_key: string }) => r.template_key))];
+}

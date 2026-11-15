@@ -8,3 +8,4 @@ export * from './status/practitioner.ts';
 export * from './kyc/name-match.ts';
 export * from './trial/slots.ts';
 export * from './schemas/functions.ts';
+export * from './schemas/columns.ts';
