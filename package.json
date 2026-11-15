@@ -18,7 +18,9 @@
     "db:types": "pnpm --filter @3nayan/db db:types",
     "stack:functions": "cp -n supabase/functions/.env.example supabase/functions/.env.local; pnpm --filter @3nayan/db exec supabase --workdir ../.. functions serve --env-file ../../supabase/functions/.env.local",
     "sync:shared": "node scripts/sync-shared.mjs",
-    "functions:check": "bash scripts/check-functions.sh"
+    "functions:check": "bash scripts/check-functions.sh",
+    "functions:dev": "pnpm --filter @3nayan/functions exec tsx dev-server.ts",
+    "stack:up": "pnpm db:start && node scripts/sync-shared.mjs && pnpm functions:dev"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
