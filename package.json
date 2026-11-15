@@ -2,13 +2,20 @@
   "name": "3nayan",
   "private": true,
   "packageManager": "pnpm@10.28.0",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "build": "turbo run build",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "db:start": "pnpm --filter @3nayan/db db:start",
+    "db:stop": "pnpm --filter @3nayan/db db:stop",
+    "db:reset": "pnpm --filter @3nayan/db db:reset",
+    "db:test": "pnpm --filter @3nayan/db db:test",
+    "db:types": "pnpm --filter @3nayan/db db:types"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -18,5 +25,11 @@
     "turbo": "^2.3.3",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "supabase",
+      "esbuild"
+    ]
   }
 }

@@ -1,0 +1,16 @@
+{
+  "name": "@3nayan/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "types": "./src/index.ts",
+  "scripts": {
+    "db:start": "supabase --workdir ../.. start -x studio,imgproxy,vector,logflare,supavisor,realtime",
+    "db:stop": "supabase --workdir ../.. stop",
+    "db:reset": "supabase --workdir ../.. db reset",
+    "db:test": "supabase --workdir ../.. test db",
+    "db:types": "supabase --workdir ../.. gen types typescript --local > src/database.types.ts"
+  },
+  "devDependencies": { "supabase": "^2.20.0" }
+}

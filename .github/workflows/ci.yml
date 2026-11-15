@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Shared code copied into Edge Functions is up to date
+        if: hashFiles('scripts/sync-shared.mjs') != ''
+        run: node scripts/sync-shared.mjs --check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - name: Start local Supabase
+        run: pnpm db:start
+      - name: Database tests (pgTAP)
+        run: pnpm db:test
+      - name: Edge Function tests
+        if: hashFiles('supabase/functions/package.json') != ''
+        run: pnpm --filter @3nayan/functions test
