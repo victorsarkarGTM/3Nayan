@@ -38,6 +38,9 @@ importers:
 
   apps/admin:
     dependencies:
+      '@100mslive/roomkit-react':
+        specifier: ^0.6.3
+        version: 0.6.3(@100mslive/hms-video-store@0.15.3(react@19.3.0))(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react@19.3.0)
       '@3nayan/client':
         specifier: workspace:*
         version: link:../../packages/client

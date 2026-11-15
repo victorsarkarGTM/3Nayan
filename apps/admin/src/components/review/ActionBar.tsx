@@ -20,7 +20,7 @@ import { Alert, Button, Card, Field, TextArea, TextInput } from '@/components/ui
 import { messageFor } from '@/lib/errors';
 import { supabase } from '@/lib/supabase';
 import { useStaff } from '@/lib/useStaff';
-import { Dialog } from './Dialog';
+import { Dialog } from '@/components/Dialog';
 import type { Detail } from './Sections';
 
 const SLOT_MESSAGES: Record<string, string> = {
