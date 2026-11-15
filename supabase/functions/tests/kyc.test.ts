@@ -93,7 +93,9 @@ describe('KYC verification', () => {
     expect(res.headers.get('location')).toBe('http://localhost:3000/practitioner/apply/5?kyc=done');
     const row = await check(a.practitionerId, 'aadhaar');
     expect(row).toMatchObject({ status: 'passed', masked_ref: 'XXXX XXXX 1234', year_of_birth: 1990 });
-    expect(JSON.stringify(row)).not.toMatch(/\d{12}/);
+    // Ids and provider references are random UUIDs; every other field must never hold 12 digits.
+    const { id: _id, practitioner_id: _p, provider_ref: _r, pending_verification_id: _v, ...personal } = row as Record<string, unknown>;
+    expect(JSON.stringify(personal)).not.toMatch(/\d{12}/);
   });
 
   it('practitioner in submitted status → 400 invalid_transition', async () => {

@@ -45,3 +45,4 @@ export const staffInviteSchema = z.object({ email: z.string().trim().email(), ro
 export const jobsSchema = z.object({ job: z.enum(['trial-reminders', 'razorpay-sync', 'notification-retry']) });
 
 export type AdminTransitionInput = z.infer<typeof adminTransitionSchema>;
+export const adminReassignSchema = z.object({ practitionerId: id, reviewerId: id });

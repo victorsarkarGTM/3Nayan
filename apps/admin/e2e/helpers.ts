@@ -36,3 +36,42 @@ export async function loginAs(page: Page, role: StaffRole) {
   await expect(page.getByRole('navigation', { name: 'Admin' })).toBeVisible();
   return u;
 }
+
+/** Seed a complete, submitted application (service role), optionally with a flagged KYC check. */
+export async function seedApplication(opts: { flagged?: boolean } = {}) {
+  const db = admin();
+  const phone = `9196${String(Date.now()).slice(-6)}${Math.floor(Math.random() * 90 + 10)}`;
+  const { data: u, error } = await db.auth.admin.createUser({ phone, email: `${phone}@users.3nayan.test`, password: `Pw-${crypto.randomUUID()}`, phone_confirm: true, email_confirm: true });
+  if (error) throw error;
+  const name = `Applicant ${crypto.randomUUID().slice(0, 6)}`;
+  const { data: p } = await db.from('practitioners').insert({
+    user_id: u.user.id, display_name: name, photo_path: `${u.user.id}/avatar.png`,
+    bio: 'Reiki practitioner helping people find calm and clarity. '.repeat(3), years_experience: 6,
+    languages: ['English', 'Hindi'], offers_online: true, city: 'Pune', email: 'applicant@example.com',
+    residential_address: { street1: '12 MG Road', city: 'Pune', state: 'Maharashtra', pincode: '411001' },
+    video_path: `x/video/intro.mp4`, video_duration_seconds: 45, video_bytes: 1000, video_mime: 'video/mp4',
+    agreement_version: 'draft-1', declaration_accepted: true,
+  }).select('id').single();
+  const pid = p!.id as string;
+  const { data: cat } = await db.from('categories').select('id').eq('slug', 'reiki').single();
+  await db.from('practitioner_categories').insert({ practitioner_id: pid, category_id: cat!.id });
+  const certPath = `${pid}/certificate/${crypto.randomUUID()}.pdf`;
+  await db.storage.from('practitioner-private').upload(certPath, new Blob(['%PDF-1.4'], { type: 'application/pdf' }));
+  await db.from('practitioner_documents').insert({ practitioner_id: pid, kind: 'certificate', storage_path: certPath, file_name: 'reiki-master.pdf', mime_type: 'application/pdf', size_bytes: 8 });
+  const { data: checks } = await db.from('verification_checks').insert([
+    { practitioner_id: pid, kind: 'pan', status: 'passed', verified_name: 'RAHUL SHARMA', name_match_score: 1 },
+    { practitioner_id: pid, kind: 'aadhaar', status: 'passed', verified_name: 'RAHUL SHARMA', masked_ref: 'XXXX XXXX 1234', name_match_score: 1 },
+    { practitioner_id: pid, kind: 'bank', status: opts.flagged ? 'flagged' : 'passed', verified_name: opts.flagged ? 'PRIYA NAIR' : 'RAHUL SHARMA', name_match_score: opts.flagged ? 0.4 : 1 },
+  ]).select('id,kind');
+  const cid = (k: string) => checks!.find((c) => c.kind === k)!.id;
+  await db.rpc('store_pan', { p_check_id: cid('pan'), p_pan: 'ABCDE1234F' });
+  await db.rpc('store_bank_account', { p_check_id: cid('bank'), p_account: '123456783210', p_ifsc: 'HDFC0001234' });
+  await db.from('practitioners').update({ status: 'submitted', submitted_at: new Date().toISOString() }).eq('id', pid);
+  return { practitionerId: pid, userId: u.user.id, name };
+}
+
+/** A datetime-local value (as typed by a reviewer) for `hoursFromNow`, expressed in IST. */
+export function istInput(hoursFromNow: number) {
+  const d = new Date(Date.now() + hoursFromNow * 3600_000 + 5.5 * 3600_000);
+  return d.toISOString().slice(0, 16);
+}

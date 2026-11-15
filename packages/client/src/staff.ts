@@ -79,6 +79,8 @@ export async function getApplicationDetail(sb: Sb, id: string) {
 
 export const adminTransition = (sb: Sb, input: AdminTransitionInput) =>
   callFunction<{ status: PractitionerStatus }>(sb, 'admin-transition', input);
+export const reassignApplication = (sb: Sb, practitionerId: string, reviewerId: string) =>
+  callFunction<{ assignedReviewerId: string }>(sb, 'admin-reassign', { practitionerId, reviewerId });
 export const proposeTrial = (sb: Sb, practitionerId: string, slots: string[]) =>
   callFunction<{ trialId: string }>(sb, 'trial-propose', { practitionerId, slots });
 export const recordTrialOutcome = (sb: Sb, trialId: string, outcome: 'completed' | 'missed', notes: string) =>

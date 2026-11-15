@@ -11,6 +11,7 @@ import { makeDeps } from './_shared/deps.ts';
 import { withHandler, type Handler } from './_shared/http.ts';
 import { accountDeletionProcess } from './account-deletion-process/handler.ts';
 import { accountDeletionRequest } from './account-deletion-request/handler.ts';
+import { adminReassign } from './admin-reassign/handler.ts';
 import { adminTransition } from './admin-transition/handler.ts';
 import { handleSendSms } from './auth-send-sms/handler.ts';
 import { hmsWebhook } from './hms-webhook/handler.ts';
@@ -49,6 +50,7 @@ const deps = makeDeps((k) => process.env[k]);
 const wrapped: Record<string, Handler> = {
   'account-deletion-process': accountDeletionProcess,
   'account-deletion-request': accountDeletionRequest,
+  'admin-reassign': adminReassign,
   'admin-transition': adminTransition,
   jobs,
   'kyc-bank-verify': kycBankVerify,
